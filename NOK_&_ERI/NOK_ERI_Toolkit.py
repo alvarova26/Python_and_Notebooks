@@ -92,6 +92,58 @@ def string_search_nok_n_max(file, start_idx, str, n_max_lines):
     return idx, pos
 
 ###############################################################################################################################################
+def string_search_nok_n_lines(my_file, strng, start_idx, n_max_lines=None):
+    '''
+    Function:   
+        + Searchs a substring, in file (list of strings)
+    Arguments:      
+        + file          => logfile as list of strings (each element of the list is a string equivalent to each line of the original txt file)
+        + strng         => substring to look for in each element of the list (aka  line of the txt file)
+        + start_idx     => index from where the search will start 
+        + n_max_lines   => max number of lines to look for the substring (if not passed - aka = None - the search has no limit of lines)
+    Output:     
+        + idx           => current index of the list (after running the function, it could be different to the start_idx)
+        + pos           => if pos < 0       => the substring was not found
+                        => if pos >= 0      => position in the string where the substring was found
+                        => if pos == 999    => code to identify that 'COMMAND EXECUTED' was found
+    '''
+    
+    # Variable control
+    assert len(my_file) > 0, 'File is empty'
+    assert isinstance(start_idx, int), 'Index must int'
+    assert start_idx >= 0, 'Index must be grather than or equal to zero'
+    assert isinstance(strng, str), 'Substring to look for must be string'
+    if (not n_max_lines == None):
+        assert isinstance(n_max_lines, int), 'Max number of lines must be int'
+        assert n_max_lines >= 1, 'Max number of lines to look for the substring must be grather than or equal to one'
+        assert n_max_lines <= (len(my_file)-start_idx), 'Max number of lines to look for the substring must less than the remaining \\
+                                                        lines in the file'
+
+    # Code
+    if (n_max_lines == None):
+        idx = start_idx                                             # Sets the starting index to a local variable
+        pos =  my_file[idx].find(strng)                             # Looks for the string in the line. Returns the position if found, -1 if not 
+        if my_file[idx].find('COMMAND EXECUTED') >= 0: pos = 999    # if COMMAND EXECUTED found, pos = 999 (code)
+
+        while (pos < 0) and (idx < len(my_file)-1) and (not pos == 999):
+            idx = idx + 1                                           # Increments the indext to read the next line
+            pos =  my_file[idx].find(strng)                         # Looks for the string in the line. Returns the position if found, -1 if not
+            if my_file[idx].find('COMMAND EXECUTED') >=0: pos = 999 # if COMMAND EXECUTED found, pos = 999 (code)
+    else:
+        idx = start_idx                                             # Sets the starting index to a local variable
+        n_max = n_max_lines                                         # Sets the maximum number of line to shearch the string
+        pos =  my_file[idx].find(strng)                             # Looks for the string in the line. Returns the position if found, -1 if not 
+        if my_file[idx].find('COMMAND EXECUTED') >= 0: pos = 999    # if COMMAND EXECUTED found, pos = 999 (code)
+
+        while (pos < 0) and (idx < len(my_file)-1) and (not pos == 999) and (n_max > 0):
+            idx = idx + 1                                           # Increments the indext to read the next line
+            n_max = n_max - 1                                       # Decrements the number of lines remaining to search
+            pos =  my_file[idx].find(strng)                         # Looks for the string in the line. Returns the position if found, -1 if not
+            if my_file[idx].find('COMMAND EXECUTED') >=0: pos = 999 # if COMMAND EXECUTED found, pos = 999 (code)
+    
+    return idx, pos
+
+###############################################################################################################################################
 def string_search_eri_n_max(file, start_idx, str, n_max_lines):
     '''
     Function:   Searches a substring passed as argument, in the file (list of strings)
