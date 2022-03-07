@@ -22,14 +22,24 @@ import json
 ###############################################################################################################################################
 
 ###############################################################################################################################################
-def open_file(path):
+def open_file(my_file_path):
     '''
-    Function:   Opens the file from the path passed as argument of the function
-    Input:      Path of the file
-    Output:     List of the strings where each item is a line of the txt file
+    Function:   
+        + Opens a file and converts it into a list of strings
+    Input:
+        + my_file_path                  => Path of the file
+    Output:
+        + my_file_as_list_of_strings    => List of the strings where each item is a line of the txt file
     '''
-    with open(path) as my_file:                             # Opening this way it is not necessary to close the file to release resources
-        my_file_as_list_of_strings = my_file.readlines()    # Reads the entire file. Each index is a string whit the corresponding line 
+    
+    # Variable control
+    assert isinstance(my_file_path, str), 'The path to the file must be as string'
+    assert len(my_file_path) > 0, 'Path is empty'
+
+    # Code
+    with open(my_file_path) as my_file:                     # Opening this way it is not necessary to close the file to release resources
+        my_file_as_list_of_strings = my_file.readlines()    # Reads the entire file as a list, where each eleme is a string corresponding
+                                                            # to a line 
     
     return my_file_as_list_of_strings
 
@@ -95,7 +105,7 @@ def string_search_nok_n_max(file, start_idx, str, n_max_lines):
 def string_search_nok_n_lines(my_file, strng, start_idx, n_max_lines=None):
     '''
     Function:   
-        + Searchs a substring, in file (list of strings)
+        + Trys to find a substring in a list of strings (a txt file converted to a list of strings)
     Arguments:      
         + file          => logfile as list of strings (each element of the list is a string equivalent to each line of the original txt file)
         + strng         => substring to look for in each element of the list (aka  line of the txt file)
@@ -116,8 +126,7 @@ def string_search_nok_n_lines(my_file, strng, start_idx, n_max_lines=None):
     if (not n_max_lines == None):
         assert isinstance(n_max_lines, int), 'Max number of lines must be int'
         assert n_max_lines >= 1, 'Max number of lines to look for the substring must be grather than or equal to one'
-        assert n_max_lines <= (len(my_file)-start_idx), 'Max number of lines to look for the substring must less than the remaining \\
-                                                        lines in the file'
+        assert n_max_lines <= (len(my_file)-start_idx), 'Max number of lines to look for the substring must less than the remaining lines in the file'
 
     # Code
     if (n_max_lines == None):
@@ -166,7 +175,7 @@ def string_search_eri_n_max(file, start_idx, str, n_max_lines):
     return idx, pos
 
 ###############################################################################################################################################
-def get_mss_pars(file, start_idx, str):
+def get_mss_pars(my_file, start_idx, my_cmd):
     '''
     Function:   Looks for the MSS parameters in the file passed as argument, starting at the specified index
     Input:      File as list of strings, index for starting the search and the string to search (allows reuse the function)
@@ -174,37 +183,35 @@ def get_mss_pars(file, start_idx, str):
     '''
 
     #### INITIALIZE LOCAL VARIABLES
-    MS_Name = '0'
-    MS_Date = '0'
-    MS_Time = '0'
-    Data = [MS_Name, MS_Date, MS_Time]                                  # Initialize Data: list of strings containing data
-    cmd = str                       
+    MS_Name = MS_Date = MS_Time = '0'
+    Data = [MS_Name, MS_Date, MS_Time]                                      # Initialize Data: list of strings containing data
+    cmd = my_cmd                       
 
     if (cmd == 'ZEKO:LAC') or (cmd == 'ZELO;') or \
         (cmd == 'ZEPO;') or (cmd == 'ZE2I::RT=ALL;') or \
-        (cmd == 'ZEPO:TYPE=SA;'):                                       # IF NOKIA                    
-        idx = start_idx                                                 # Sets the startin index to a local variable
-        idx, pos = string_search_nok(file, idx, cmd)                    # Searchs for 'cmd' - string to allow reuse the code
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):     # if found and not EOF and not 'COMMAND EXECUTED'=>
-            idx, pos = string_search_nok(file, idx, 'MSSBA')            # Searchs for 'MSSBA'
-            if (pos >= 0) and (idx < len(file)-1) and (not pos == 999): # if found and not EOF and not 'COMMAND EXECUTED'=>
-                my_line = file[idx]                                     # Reads the line and extracts data
+        (cmd == 'ZEPO:TYPE=SA;'):                                           # IF NOKIA                    
+        idx = start_idx                                                     # Sets the startin index to a local variable
+        idx, pos = string_search_nok(my_file, idx, cmd)                     # Searchs for 'cmd' - string to allow reuse the code
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):      # if found and not EOF and not 'COMMAND EXECUTED'=>
+            idx, pos = string_search_nok(my_file, idx, 'MSSBA')             # Searchs for 'MSSBA'
+            if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):  # if found and not EOF and not 'COMMAND EXECUTED'=>
+                my_line = my_file[idx]                                      # Reads the line and extracts data
                 MS_Name = my_line[10:21:].strip()
                 MS_Date = my_line[35:47:].strip()
                 MS_Time = my_line[48:58:].strip()
-                Data = [MS_Name, MS_Date, MS_Time]                      # Update Data: list of strings containing data
+                Data = [MS_Name, MS_Date, MS_Time]                          # Update Data: list of strings containing data
 
-    if (cmd == 'eaw'):                                                  # IF ERICSSON
-        idx = start_idx                                                 # Sets the startin index to a local variable
-        idx, pos = string_search_eri(file, idx, cmd)                    # Searchs for 'cmd' - string to allow reuse the code
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999) and (not pos == 998):     # if found and not EOF and not 'COMMAND EXECUTED'=>
-            idx, pos = string_search_eri(file, idx, 'MSSBA')            # Searchs for 'MSSBA'
-            if (pos >= 0) and (idx < len(file)-1) and (not pos == 999) and (not pos == 998): # if found and not EOF and not 'COMMAND EXECUTED'=>
-                my_line = file[idx]                                     # Reads the line and extracts data
+    if (cmd == 'eaw'):                                                      # IF ERICSSON
+        idx = start_idx                                                     # Sets the startin index to a local variable
+        idx, pos = string_search_eri(my_file, idx, cmd)                     # Searchs for 'cmd' - string to allow reuse the code
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999) and (not pos == 998):     # if found and not EOF and not 'COMMAND EXECUTED'=>
+            idx, pos = string_search_eri(my_file, idx, 'MSSBA')             # Searchs for 'MSSBA'
+            if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999) and (not pos == 998): # if found and not EOF and not 'COMMAND EXECUTED'=>
+                my_line = my_file[idx]                                      # Reads the line and extracts data
                 MS_Name = my_line[21:30:].strip()
-                MS_Date = '0000-00-00'                                  # Mantain '0' as ther is no timestamp in Ericsson
-                MS_Time = '00:00:00'                                    # Mantain '0' as ther is no timestamp in Ericsson
-                Data = [MS_Name, MS_Date, MS_Time]                      # Update Data: list of strings containing data
+                MS_Date = '0000-00-00'                                      # Mantain '0' as ther is no timestamp in Ericsson
+                MS_Time = '00:00:00'                                        # Mantain '0' as ther is no timestamp in Ericsson
+                Data = [MS_Name, MS_Date, MS_Time]                          # Update Data: list of strings containing data
 
     return idx, pos, Data
 
