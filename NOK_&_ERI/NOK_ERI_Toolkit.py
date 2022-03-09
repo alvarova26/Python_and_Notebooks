@@ -102,13 +102,13 @@ def string_search_nok_n_max(file, start_idx, str, n_max_lines):
     return idx, pos
 
 ###############################################################################################################################################
-def string_search_nok_n_lines(my_file, strng, start_idx, n_max_lines=None):
+def string_search_nok_n_lines(my_file, sub_str, start_idx, n_max_lines=None):
     '''
     Function:   
         + Trys to find a substring in a list of strings (a txt file converted to a list of strings)
     Arguments:      
-        + file          => logfile as list of strings (each element of the list is a string equivalent to each line of the original txt file)
-        + strng         => substring to look for in each element of the list (aka  line of the txt file)
+        + my_file       => logfile as list of strings (each element of the list is a string equivalent to each line of the original txt file)
+        + sub_str       => substring to look for in each element of the list (aka  line of the txt file)
         + start_idx     => index from where the search will start 
         + n_max_lines   => max number of lines to look for the substring (if not passed - aka = None - the search has no limit of lines)
     Output:     
@@ -120,9 +120,10 @@ def string_search_nok_n_lines(my_file, strng, start_idx, n_max_lines=None):
     
     # Variable control
     assert len(my_file) > 0, 'File is empty'
-    assert isinstance(start_idx, int), 'Index must int'
+    assert isinstance(my_file, list), 'Index must be list of strings'
+    assert isinstance(start_idx, int), 'Index must be int'
     assert start_idx >= 0, 'Index must be grather than or equal to zero'
-    assert isinstance(strng, str), 'Substring to look for must be string'
+    assert isinstance(sub_str, str), 'Substring to look for must be string'
     if (not n_max_lines == None):
         assert isinstance(n_max_lines, int), 'Max number of lines must be int'
         assert n_max_lines >= 1, 'Max number of lines to look for the substring must be grather than or equal to one'
@@ -131,23 +132,23 @@ def string_search_nok_n_lines(my_file, strng, start_idx, n_max_lines=None):
     # Code
     if (n_max_lines == None):
         idx = start_idx                                             # Sets the starting index to a local variable
-        pos =  my_file[idx].find(strng)                             # Looks for the string in the line. Returns the position if found, -1 if not 
+        pos =  my_file[idx].find(sub_str)                           # Looks for the string in the line. Returns the position if found, -1 if not 
         if my_file[idx].find('COMMAND EXECUTED') >= 0: pos = 999    # if COMMAND EXECUTED found, pos = 999 (code)
 
         while (pos < 0) and (idx < len(my_file)-1) and (not pos == 999):
             idx = idx + 1                                           # Increments the indext to read the next line
-            pos =  my_file[idx].find(strng)                         # Looks for the string in the line. Returns the position if found, -1 if not
+            pos =  my_file[idx].find(sub_str)                       # Looks for the string in the line. Returns the position if found, -1 if not
             if my_file[idx].find('COMMAND EXECUTED') >=0: pos = 999 # if COMMAND EXECUTED found, pos = 999 (code)
     else:
         idx = start_idx                                             # Sets the starting index to a local variable
         n_max = n_max_lines                                         # Sets the maximum number of line to shearch the string
-        pos =  my_file[idx].find(strng)                             # Looks for the string in the line. Returns the position if found, -1 if not 
+        pos =  my_file[idx].find(sub_str)                           # Looks for the string in the line. Returns the position if found, -1 if not 
         if my_file[idx].find('COMMAND EXECUTED') >= 0: pos = 999    # if COMMAND EXECUTED found, pos = 999 (code)
 
         while (pos < 0) and (idx < len(my_file)-1) and (not pos == 999) and (n_max > 0):
             idx = idx + 1                                           # Increments the indext to read the next line
             n_max = n_max - 1                                       # Decrements the number of lines remaining to search
-            pos =  my_file[idx].find(strng)                         # Looks for the string in the line. Returns the position if found, -1 if not
+            pos =  my_file[idx].find(sub_str)                       # Looks for the string in the line. Returns the position if found, -1 if not
             if my_file[idx].find('COMMAND EXECUTED') >=0: pos = 999 # if COMMAND EXECUTED found, pos = 999 (code)
     
     return idx, pos
@@ -177,29 +178,55 @@ def string_search_eri_n_max(file, start_idx, str, n_max_lines):
 ###############################################################################################################################################
 def get_mss_pars(my_file, start_idx, my_cmd):
     '''
-    Function:   Looks for the MSS parameters in the file passed as argument, starting at the specified index
-    Input:      File as list of strings, index for starting the search and the string to search (allows reuse the function)
-    Output:     MSS parameters as strings and the current index
-    '''
+    Function:
+        + Looks for the MSS's parameters
+    Input:
+        + my_file       => logfile as list of strings (each element of the list is a string equivalent to each line of the original txt file)
+        + start_idx     => index from where the search will start 
+        + my_cmd        => command as substring (code) to enter in differents block of code
+    Output:
+        + my_data       => list of strings with the MSS's parameters
+        + idx           => current index of the list (after running the function, it could be different to the start_idx)
+        + pos           => if pos < 0       => the substring was not found
+                        => if pos >= 0      => position in the string where the substring was found
+                        => if pos == 999    => code to identify that 'COMMAND EXECUTED' was found
 
-    #### INITIALIZE LOCAL VARIABLES
-    MS_Name = MS_Date = MS_Time = '0'
-    Data = [MS_Name, MS_Date, MS_Time]                                      # Initialize Data: list of strings containing data
+    '''
+    # Variable control
+    assert len(my_file) > 0, 'File is empty'
+    assert isinstance(my_file, list), 'Index must be list of strings'
+    assert isinstance(start_idx, int), 'Index must be int'
+    assert start_idx >= 0, 'Index must be grather than or equal to zero'
+    assert isinstance(my_cmd, str), 'Command to look for must be string'
+
+    ###################################################### Code
+
+    # Init Variables
+    mss_name = mss_date = mss_time = '0'
+    my_data = [mss_name, mss_date, mss_time]                                # Initialize Data: list of strings containing data
     cmd = my_cmd                       
 
     if (cmd == 'ZEKO:LAC') or (cmd == 'ZELO;') or \
         (cmd == 'ZEPO;') or (cmd == 'ZE2I::RT=ALL;') or \
         (cmd == 'ZEPO:TYPE=SA;'):                                           # IF NOKIA                    
         idx = start_idx                                                     # Sets the startin index to a local variable
-        idx, pos = string_search_nok(my_file, idx, cmd)                     # Searchs for 'cmd' - string to allow reuse the code
+        #idx, pos = string_search_nok(my_file, idx, cmd)                    # Searchs for 'cmd' - string to allow reuse the code
+        idx, pos = string_search_nok_n_lines(my_file=my_file,
+                                            sub_str=cmd,
+                                            start_idx=idx,
+                                            n_max_lines=None)               # Searchs for 'cmd' substring
         if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):      # if found and not EOF and not 'COMMAND EXECUTED'=>
-            idx, pos = string_search_nok(my_file, idx, 'MSSBA')             # Searchs for 'MSSBA'
+            #idx, pos = string_search_nok(my_file, idx, 'MSSBA')            # Searchs for 'MSSBA'
+            idx, pos = string_search_nok_n_lines(my_file=my_file,
+                                                sub_str='MSSBA',
+                                                start_idx=idx,
+                                                n_max_lines=None)           # Searchs for 'cmd' substring
             if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):  # if found and not EOF and not 'COMMAND EXECUTED'=>
                 my_line = my_file[idx]                                      # Reads the line and extracts data
-                MS_Name = my_line[10:21:].strip()
-                MS_Date = my_line[35:47:].strip()
-                MS_Time = my_line[48:58:].strip()
-                Data = [MS_Name, MS_Date, MS_Time]                          # Update Data: list of strings containing data
+                mss_name = my_line[10:21:].strip()
+                mss_date = my_line[35:47:].strip()
+                mss_time = my_line[48:58:].strip()
+                my_data = [mss_name, mss_date, mss_time]                    # Update Data: list of strings containing data
 
     if (cmd == 'eaw'):                                                      # IF ERICSSON
         idx = start_idx                                                     # Sets the startin index to a local variable
@@ -208,12 +235,12 @@ def get_mss_pars(my_file, start_idx, my_cmd):
             idx, pos = string_search_eri(my_file, idx, 'MSSBA')             # Searchs for 'MSSBA'
             if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999) and (not pos == 998): # if found and not EOF and not 'COMMAND EXECUTED'=>
                 my_line = my_file[idx]                                      # Reads the line and extracts data
-                MS_Name = my_line[21:30:].strip()
-                MS_Date = '0000-00-00'                                      # Mantain '0' as ther is no timestamp in Ericsson
-                MS_Time = '00:00:00'                                        # Mantain '0' as ther is no timestamp in Ericsson
-                Data = [MS_Name, MS_Date, MS_Time]                          # Update Data: list of strings containing data
+                mss_name = my_line[21:30:].strip()
+                mss_date = '0000-00-00'                                      # Mantain '0' as ther is no timestamp in Ericsson
+                mss_time = '00:00:00'                                        # Mantain '0' as ther is no timestamp in Ericsson
+                my_data = [mss_name, mss_date, mss_time]                     # Update Data: list of strings containing data
 
-    return idx, pos, Data
+    return idx, pos, my_data
 
 
 ###############################################################################################################################################
@@ -427,7 +454,7 @@ def get_mgnrp_lac_pars(file, start_idx):
 ###############################################################################################################################################
 
 ###############################################################################################################################################
-def get_zepo_2g_cell_pars(file, start_idx):
+def get_zepo_2g_cell_pars(my_file, start_idx):
     '''
     Function:   Looks for the CELL's parameters in the file passed as argument, starting at the specified index
     Input:      File as list of strings and index for starting the search 
@@ -442,62 +469,62 @@ def get_zepo_2g_cell_pars(file, start_idx):
 
     Data = [CELL_NAME, CELL_NO, CELL_BSC_NAME, CELL_BSC_NO,
                 CELL_LAC_NAME, CELL_MCC, CELL_MNC, CELL_LAC_NO,
-                CELL_CI, CELL_STAT, CELL_RZ, CELL_CDR]                                      # Initialize Data: list of strings
+                CELL_CI, CELL_STAT, CELL_RZ, CELL_CDR]                                          # Initialize Data: list of strings
 
-    idx = start_idx                                                                         # Sets the starting index to a local variable
-    idx, pos = string_search_nok(file, idx, 'BASE TRANSCEIVER STATION')                     # Searchs for 'BASE TRANSCEIVER STATION'
-    if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                             # if found and not EOF and not 'COMMAND EXECUTED'=>
-        idx, pos = string_search_nok(file, idx, 'BTS   NAME')                               # Searchs for 'BTS   NAME'
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                         # if found and not EOF and not 'COMMAND EXECUTED'=>
-            my_line = file[idx]                                                             # Reads the line and extracts data
+    idx = start_idx                                                                             # Sets the starting index to a local variable
+    idx, pos = string_search_nok(my_file, idx, 'BASE TRANSCEIVER STATION')                      # Searchs for 'BASE TRANSCEIVER STATION'
+    if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                              # if found and not EOF and not 'COMMAND EXECUTED'=>
+        idx, pos = string_search_nok(my_file, idx, 'BTS   NAME')                                # Searchs for 'BTS   NAME'
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                          # if found and not EOF and not 'COMMAND EXECUTED'=>
+            my_line = my_file[idx]                                                              # Reads the line and extracts data
             CELL_NAME = my_line[12:30:].strip()
             CELL_NO = my_line[50:60:].strip()
 
-        idx, pos = string_search_nok(file, idx, 'BSC   NAME')                               # Searchs for 'BTS   NAME'
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                         # if found and not EOF and not 'COMMAND EXECUTED'=>
-            my_line = file[idx]                                                             # Reads the line and extracts data
+        idx, pos = string_search_nok(my_file, idx, 'BSC   NAME')                                # Searchs for 'BTS   NAME'
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                          # if found and not EOF and not 'COMMAND EXECUTED'=>
+            my_line = my_file[idx]                                                              # Reads the line and extracts data
             CELL_BSC_NAME = my_line[12:30:].strip()
             CELL_BSC_NO = my_line[50:60:].strip()
 
-        idx, pos = string_search_nok(file, idx, 'LA    NAME')                               # Searchs for 'xxxxxxxxx'
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                         # if found and not EOF and not 'COMMAND EXECUTED'=>
-            my_line = file[idx]                                                             # Reads the line and extracts data
+        idx, pos = string_search_nok(my_file, idx, 'LA    NAME')                                # Searchs for 'xxxxxxxxx'
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                          # if found and not EOF and not 'COMMAND EXECUTED'=>
+            my_line = my_file[idx]                                                              # Reads the line and extracts data
             CELL_LAC_NAME = my_line[12:30:].strip()
             CELL_LAC_NO = my_line[50:60:].strip()
 
-        idx, pos = string_search_nok(file, idx, 'MOBILE COUNTRY')                           # Searchs for 'xxxxxxxxx'
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                         # if found and not EOF and not 'COMMAND EXECUTED'=>
-            my_line = file[idx]                                                             # Reads the line and extracts data
+        idx, pos = string_search_nok(my_file, idx, 'MOBILE COUNTRY')                            # Searchs for 'xxxxxxxxx'
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                          # if found and not EOF and not 'COMMAND EXECUTED'=>
+            my_line = my_file[idx]                                                              # Reads the line and extracts data
             CELL_MCC = my_line[50:60:].strip()
 
-        idx, pos = string_search_nok(file, idx, 'MOBILE NETWORK')                           # Searchs for 'xxxxxxxxx'
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                         # if found and not EOF and not 'COMMAND EXECUTED'=>
-            my_line = file[idx]                                                             # Reads the line and extracts data
+        idx, pos = string_search_nok(my_file, idx, 'MOBILE NETWORK')                            # Searchs for 'xxxxxxxxx'
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                          # if found and not EOF and not 'COMMAND EXECUTED'=>
+            my_line = my_file[idx]                                                              # Reads the line and extracts data
             CELL_MNC = my_line[50:60:].strip()
 
-        idx, pos = string_search_nok(file, idx, 'CELL IDENTITY')                            # Searchs for 'xxxxxxxxx'
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                         # if found and not EOF and not 'COMMAND EXECUTED'=>
-            my_line = file[idx]                                                             # Reads the line and extracts data
+        idx, pos = string_search_nok(my_file, idx, 'CELL IDENTITY')                             # Searchs for 'xxxxxxxxx'
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                          # if found and not EOF and not 'COMMAND EXECUTED'=>
+            my_line = my_file[idx]                                                              # Reads the line and extracts data
             CELL_CI = my_line[50:60:].strip()
 
-        idx, pos = string_search_nok(file, idx, 'BTS ADM')                                  # Searchs for 'xxxxxxxxx'
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                         # if found and not EOF and not 'COMMAND EXECUTED'=>
-            my_line = file[idx]                                                             # Reads the line and extracts data
+        idx, pos = string_search_nok(my_file, idx, 'BTS ADM')                                   # Searchs for 'xxxxxxxxx'
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                          # if found and not EOF and not 'COMMAND EXECUTED'=>
+            my_line = my_file[idx]                                                              # Reads the line and extracts data
             CELL_STAT = my_line[50:60:].strip()
 
-        idx, pos = string_search_nok(file, idx, 'ROUTING ZONE')                             # Searchs for 'xxxxxxxxx'
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                         # if found and not EOF and not 'COMMAND EXECUTED'=>
-            my_line = file[idx]                                                             # Reads the line and extracts data
+        idx, pos = string_search_nok(my_file, idx, 'ROUTING ZONE')                              # Searchs for 'xxxxxxxxx'
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                          # if found and not EOF and not 'COMMAND EXECUTED'=>
+            my_line = my_file[idx]                                                              # Reads the line and extracts data
             CELL_RZ = my_line[50:60:].strip()
 
-        idx, pos = string_search_nok(file, idx, 'CELL DEPENDENT')                           # Searchs for 'xxxxxxxxx'
-        if (pos >= 0) and (idx < len(file)-1) and (not pos == 999):                         # if found and not EOF and not 'COMMAND EXECUTED'=>
-            my_line = file[idx]                                                             # Reads the line and extracts data
+        idx, pos = string_search_nok(my_file, idx, 'CELL DEPENDENT')                            # Searchs for 'xxxxxxxxx'
+        if (pos >= 0) and (idx < len(my_file)-1) and (not pos == 999):                          # if found and not EOF and not 'COMMAND EXECUTED'=>
+            my_line = my_file[idx]                                                              # Reads the line and extracts data
             CELL_CDR = my_line[50:60:].strip()
 
     Data = [CELL_NAME, CELL_NO, CELL_BSC_NAME, CELL_BSC_NO,
                 CELL_LAC_NAME, CELL_MCC, CELL_MNC, CELL_LAC_NO,
-                CELL_CI, CELL_STAT, CELL_RZ, CELL_CDR]                                      # Assign to return
+                CELL_CI, CELL_STAT, CELL_RZ, CELL_CDR]                                          # Assign to return
 
     return idx, pos, Data
 
@@ -826,3 +853,91 @@ def get_mgaap_area_pars(file, start_idx):
                 SA_RO, SA_CO, SA_EA]                                                        # Assign to return
 
     return idx, pos, Data
+
+
+###############################################################################################################################################
+########################################     MAIN Functions     ###############################################################################
+###############################################################################################################################################
+
+def get_2g_cell_nok(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all the 2G cells of NOKIA's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full 2G cells of NOKIA's MSSs information
+        + df_summ       => DataFrame with summarized 2G cells of NOKIA's MSSs information
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Substring to look for must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init NOKIA Variables
+    nok_cell_mss_name = '0'
+    nok_cell_mss_date = '0'
+    nok_cell_mss_time = '0'
+    nok_cell_name = '0'
+    nok_cell_no = '0'
+    nok_cell_bsc_name = '0'
+    nok_cell_bsc_no = '0'
+    nok_cell_lac_name = '0'
+    nok_cell_lac_no = '0'
+    nok_cell_mcc = '0'
+    nok_cell_mnc = '0'
+    nok_cell_ci = '0'
+    nok_cell_stat = '0'
+    nok_cell_rz = '0'
+    nok_cell_cdr = '0'
+
+    nok_cell_mss_pars = [nok_cell_mss_name, nok_cell_mss_date, nok_cell_mss_time]
+    nok_cell_pars = [nok_cell_name, nok_cell_no, nok_cell_bsc_name, nok_cell_bsc_no, nok_cell_lac_name,nok_cell_lac_no,
+                        nok_cell_mcc, nok_cell_mnc, nok_cell_ci, nok_cell_stat, nok_cell_rz, nok_cell_cdr]
+
+    nok_cell_idx = 0
+    nok_cell_pos = 0
+    nok_cell_count = 0
+
+    # Open & Load NOKIA logfile
+    nok_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the NOKIA pd.DataFrame
+    nok_col_names = ['MSS','Date','Time','Name','Number','NE','NE_No','LAC_Name','MCC','MNC','LAC','CI','Status','RZ', 'CDR']
+    df_nok_2g_cell = pd.DataFrame(columns=nok_col_names)
+    df_nok_2g_cell.loc[0] = [nok_cell_mss_name, nok_cell_mss_date, nok_cell_mss_time, nok_cell_name, nok_cell_no, 
+                                nok_cell_bsc_name, nok_cell_bsc_no, nok_cell_lac_name, nok_cell_lac_no, nok_cell_mcc,
+                                nok_cell_mnc, nok_cell_ci, nok_cell_stat, nok_cell_rz, nok_cell_cdr]
+
+    # Run main block (txt => pd.DataFrame)
+    while (nok_cell_idx < len(nok_logfile)-1):
+        nok_cell_idx, nok_cell_pos, nok_cell_mss_pars = get_mss_pars(my_file=nok_logfile,
+                                                                    start_idx=nok_cell_idx,
+                                                                    my_cmd='ZEPO;')
+        while (nok_cell_idx < len(nok_logfile)-1) and (not nok_cell_pos == 999):
+            nok_cell_idx, nok_cell_pos, nok_cell_pars = get_zepo_2g_cell_pars(my_file=nok_logfile,
+                                                                             start_idx=nok_cell_idx)
+            if (nok_cell_pos >= 0) and (not nok_cell_pos == 999):
+                new_cell = nok_cell_mss_pars + nok_cell_pars
+                df_nok_2g_cell.loc[nok_cell_count] = new_cell
+                nok_cell_count = nok_cell_count + 1
+        nok_cell_idx = nok_cell_idx + 1
+
+
+    # DataFrame => Drop some columns to get just the most important ones.
+
+    df_nok_2g_cgi = df_nok_2g_cell
+    df_nok_2g_cgi['CGI'] =  df_nok_2g_cgi['MCC'] + '-' + \
+                            df_nok_2g_cgi['MNC'] + '-' + \
+                            df_nok_2g_cgi['LAC'] + '-' + \
+                            df_nok_2g_cgi['CI']
+
+    nok_drop_col = ['Number', 'NE_No', 'LAC_Name', 'Status', 'RZ', 'CDR']
+    df_nok_2g_cgi = df_nok_2g_cgi.drop(columns=nok_drop_col)
+    df_nok_2g_cgi['MSS'] = df_nok_2g_cgi['MSS'].str.replace(r'0', '')
+    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
+    df_nok_2g_cgi = df_nok_2g_cgi[nok_col_summ]
+
+    return df_nok_2g_cell, df_nok_2g_cgi
