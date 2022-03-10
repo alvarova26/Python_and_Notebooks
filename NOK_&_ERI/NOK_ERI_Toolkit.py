@@ -871,7 +871,7 @@ def get_2g_cell_nok(log_file_path):
     '''
     
     # Variable control
-    assert isinstance(log_file_path, str),'Substring to look for must be string'
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
     assert len(log_file_path) > 0, 'File is empty'
 
     ###################################################### Code
