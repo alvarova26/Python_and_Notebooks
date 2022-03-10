@@ -941,3 +941,122 @@ def get_2g_cell_nok(log_file_path):
     df_nok_2g_cgi = df_nok_2g_cgi[nok_col_summ]
 
     return df_nok_2g_cell, df_nok_2g_cgi
+
+
+###############################################################################################################################################
+#################################     Command Generations Functions     #######################################################################
+###############################################################################################################################################
+
+def change_lai_2g_eri(my_df, my_cmd='change'):
+    '''
+    Function:   
+        + Generates the commands to change/fallback the change of LAI of 2G cells in ERICSSON's MSSs
+    Arguments:      
+        + my_df         => DataFrame with the information needed for change/fallback
+        + my_cmd        => string coommand to return the change commands or the corrspondent fallback
+    Output:     
+        + None          => None - just analyze and print the commands
+    '''
+
+    # Variable control
+    assert isinstance(my_df, pd.DataFrame),'Received argument must be a pd.DataFrame'
+    assert isinstance(my_cmd, str),'Received argument must be a pd.DataFrame'
+    assert len(my_cmd) > 0, 'Command (change or fallback) can not be empty'
+
+
+    ###################################################### Code
+    if (my_cmd == 'change'):
+        list_of_muni = my_df['Municipio'].unique()
+
+        for i in range(len(list_of_muni)):
+            idx=0
+            count=0
+            mun0 = list_of_muni[i]
+            for j in range(len(my_df)):
+                mun1 = my_df['Municipio'][j]
+                if (mun0 == mun1):
+                    idx = j
+                    count += 1
+
+            lai_from_to = my_df['DE-PARA'][idx-count+1]
+            print('! ' + mun0 + ' | Change ' + lai_from_to)
+            print('!--------------------------------------------------------------------------------------')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                print('MGCEP:CELL=' + cell_name + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                print('MGRCP:CELL=' + cell_name + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                print('MGCEE:CELL=' + cell_name + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                bsc_name = my_df['BSC/RNC'][t]
+                new_cgi = my_df['New CGI'][t]
+                print('MGCEI:CELL=' + cell_name + ',BSC=' + bsc_name + ',CGI=' + new_cgi + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                new_lai = my_df['New LAC'][t]
+                cell_ea = new_lai[-2:]
+                print('MGCEC:CELL=' + cell_name + ',EA=' + cell_ea + ';')
+            
+            print('\n! Generate emerceny center commands with AXE Tool\n')
+
+    if (my_cmd == 'fallback'):
+        list_of_muni = my_df['Municipio'].unique()
+
+        for i in range(len(list_of_muni)):
+            idx=0
+            count=0
+            mun0 = list_of_muni[i]
+            for j in range(len(my_df)):
+                mun1 = my_df['Municipio'][j]
+                if (mun0 == mun1):
+                    idx = j
+                    count += 1
+
+            lai_from_to = my_df['DE-PARA'][idx-count+1]
+            print('! ' + mun0 + ' | Fallback ' + lai_from_to)
+            print('!--------------------------------------------------------------------------------------')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                print('MGCEP:CELL=' + cell_name + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                print('MGRCP:CELL=' + cell_name + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                print('MGCEE:CELL=' + cell_name + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                bsc_name = my_df['BSC/RNC'][t]
+                old_cgi = my_df['CGI'][t]
+                print('MGCEI:CELL=' + cell_name + ',BSC=' + bsc_name + ',CGI=' + old_cgi + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['BTS_NAME'][t]
+                if cell_name[0:2] == 'BA': cell_name = my_df['BTS_NAME'][t].replace(r'BA', '9', 1)
+                new_lai = my_df['New LAC'][t]
+                cell_ea = new_lai[-2:]
+                print('MGCEC:CELL=' + cell_name + ',EA=' + cell_ea + ';')
+            
+            print('\n! Generate emerceny center commands with AXE Tool\n')
