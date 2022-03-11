@@ -926,13 +926,11 @@ def get_2g_cell_nok(log_file_path):
         nok_cell_idx = nok_cell_idx + 1
 
     # DataFrame => Drop some columns to get just the most important ones.
-
     df_nok_2g_cell_summ = df_nok_2g_cell_full
     df_nok_2g_cell_summ['CGI'] =  df_nok_2g_cell_summ['MCC'] + '-' + \
                                     df_nok_2g_cell_summ['MNC'] + '-' + \
                                     df_nok_2g_cell_summ['LAC'] + '-' + \
                                     df_nok_2g_cell_summ['CI']
-
     nok_drop_col = ['Number', 'NE_No', 'LAC_Name', 'Status', 'RZ', 'CDR']
     df_nok_2g_cell_summ = df_nok_2g_cell_summ.drop(columns=nok_drop_col)
     df_nok_2g_cell_summ['MSS'] = df_nok_2g_cell_summ['MSS'].str.replace(r'0', '')
@@ -1007,15 +1005,86 @@ def get_2g_cell_eri(log_file_path):
         eri_cell_idx += 1
 
     # DataFrame => Drop some columns to get just the most important ones.
-
     df_eri_2g_cell_summ = df_eri_2g_cell_full
     eri_drop_col = ['CO', 'RO', 'NCS', 'EA']
     df_eri_2g_cell_summ = df_eri_2g_cell_summ.drop(columns=eri_drop_col)
     eri_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
     df_eri_2g_cell_summ = df_eri_2g_cell_summ[eri_col_summ]
-    df_eri_2g_cell_summ
 
     return df_eri_2g_cell_full, df_eri_2g_cell_summ
+
+def get_lai_x_rnc_eri(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all the LAI x RNC mapping of ERICSSON's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full LAI x RNC mapping of ERICSSON's MSSs
+        + df_summ       => DataFrame with summarized LAI x RNC mapping of ERICSSON's MSSs
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init ERICSSON Variables
+    eri_lai_mss_name = '0'
+    eri_lai_mss_date = '0'
+    eri_lai_mss_time = '0'
+    eri_rnc_name = '0'
+    eri_rnc_lai_mcc = '0'
+    eri_rnc_lai_mnc = '0'
+    eri_rnc_lai_no = '0'
+
+    eri_mss_pars = [eri_lai_mss_name, eri_lai_mss_date, eri_lai_mss_time]
+    eri_rnc_pars = [eri_rnc_name]
+    eri_rnc_lai_pars = [eri_rnc_lai_mcc, eri_rnc_lai_mnc, eri_rnc_lai_no]
+
+    eri_lai_idx = 0
+    eri_lai_pos = 0
+    eri_lai_count = 0
+    eri_lai_flag = 0
+
+    # Open & Load ERICSSON logfile
+    eri_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the ERICSSON pd.DataFrame
+    eri_col_names = ['MSS','Date','Time','RNC','MCC','MNC','LAC']
+    df_eri_lai_x_rnc_full = pd.DataFrame(columns=eri_col_names)
+    df_eri_lai_x_rnc_full.loc[0] = [eri_lai_mss_name, eri_lai_mss_date, eri_lai_mss_time, eri_rnc_name,
+                                        eri_rnc_lai_mcc, eri_rnc_lai_mnc, eri_rnc_lai_no]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (eri_lai_idx < len(eri_logfile)-1):
+        eri_lai_idx, eri_lai_pos, eri_mss_pars = get_mss_pars(eri_logfile, eri_lai_idx,'eaw')
+        while(eri_lai_pos >= 0) and (not eri_lai_pos == 998):
+            eri_lai_idx, eri_lai_pos, eri_rnc_pars = get_mgmap_rnc_pars(eri_logfile, eri_lai_idx)
+            if (eri_lai_pos >= 0) and (not eri_lai_pos == 999) and (not eri_lai_pos == 998):
+                eri_lai_idx, eri_lai_pos, eri_rnc_lai_pars = get_mgmap_rnc_lac_pars(eri_logfile, eri_lai_idx)
+                while(eri_lai_pos >= 0) and (not eri_lai_pos == 999) and (not eri_lai_pos == 998):
+                    eri_lai_idx, eri_lai_pos, eri_rnc_lai_pars = get_mgmap_rnc_lac_pars(eri_logfile, eri_lai_idx)
+                    if(eri_lai_pos >= 0) and (not eri_lai_pos == 999) and (not eri_lai_pos == 998):
+                        new_lai_rnc = eri_mss_pars + eri_rnc_pars + eri_rnc_lai_pars
+                        df_eri_lai_x_rnc_full.loc[eri_lai_count] = new_lai_rnc
+                        eri_lai_count += 1
+                    eri_lai_idx += 1
+            eri_lai_idx += 1
+        eri_lai_idx += 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_eri_lai_x_rnc_summ = df_eri_lai_x_rnc_full
+    df_eri_lai_x_rnc_summ['LAI'] =  df_eri_lai_x_rnc_summ['MCC'] + '-' + df_eri_lai_x_rnc_summ['MNC'] + '-' + df_eri_lai_x_rnc_summ['LAC']
+    df_eri_lai_x_rnc_summ['MSS-LAI'] =  df_eri_lai_x_rnc_summ['MSS'] + '-' + df_eri_lai_x_rnc_summ['LAI']
+    df_eri_lai_x_rnc_summ['NE-LAI'] =  df_eri_lai_x_rnc_summ['RNC'] + '-' + df_eri_lai_x_rnc_summ['LAI']
+    eri_drop_col = []
+    df_eri_lai_x_rnc_summ = df_eri_lai_x_rnc_summ.drop(columns=eri_drop_col)
+    eri_col_summ = ['MSS', 'Date', 'Time', 'MCC', 'MNC', 'LAC', 'LAI', 'MSS-LAI', 'NE-LAI', 'RNC']
+    df_eri_lai_x_rnc_summ = df_eri_lai_x_rnc_summ[eri_col_summ]
+
+    return df_eri_lai_x_rnc_full, df_eri_lai_x_rnc_summ
 
 
 
