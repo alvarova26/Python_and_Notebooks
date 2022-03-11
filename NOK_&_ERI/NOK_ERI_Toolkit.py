@@ -941,6 +941,83 @@ def get_2g_cell_nok(log_file_path):
 
     return df_nok_2g_cell_full, df_nok_2g_cell_summ
 
+def get_2g_cell_eri(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all the 2G cells of ERICSSON's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full 2G cells of ERICSSON's MSSs information
+        + df_summ       => DataFrame with summarized 2G cells of ERICSSON's MSSs information
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init ERICSSON Variables
+    eri_cell_mss_name = '0'
+    eri_cell_mss_date = '0'
+    eri_cell_mss_time = '0'
+    eri_cell_name = '0'
+    eri_cell_cgi = '0'
+    eri_cell_mcc = '0'
+    eri_cell_mnc = '0'
+    eri_cell_lac = '0'
+    eri_cell_ci = '0'
+    eri_cell_bsc = '0'
+    eri_cell_co = '0'
+    eri_cell_ro = '0'
+    eri_cell_ncs = '0'
+    eri_cell_ea = '0'
+
+    eri_mss_pars = [eri_cell_mss_name, eri_cell_mss_date, eri_cell_mss_time]
+    eri_cell_pars = [eri_cell_name, eri_cell_cgi, eri_cell_mcc, eri_cell_mnc, eri_cell_lac,
+                        eri_cell_ci, eri_cell_bsc, eri_cell_co, eri_cell_ro, eri_cell_ncs, eri_cell_ea]
+
+    eri_cell_idx = 0
+    eri_cell_pos = 0
+    eri_cell_count = 0
+
+    # Open & Load ERICSSON logfile
+    eri_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the ERICSSON pd.DataFrame
+    eri_col_names = ['MSS','Date','Time','Name','CGI','MCC','MNC','LAC','CI','NE','CO','RO','NCS','EA']
+    df_eri_2g_cell_full = pd.DataFrame(columns=eri_col_names)
+    df_eri_2g_cell_full.loc[0] = [eri_cell_mss_name, eri_cell_mss_date, eri_cell_mss_time, eri_cell_name, eri_cell_cgi,
+                                    eri_cell_mcc, eri_cell_mnc, eri_cell_lac, eri_cell_ci, eri_cell_bsc, eri_cell_co,
+                                    eri_cell_ro, eri_cell_ncs, eri_cell_ea]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (eri_cell_idx < len(eri_logfile)-1):
+        eri_cell_idx, eri_cell_pos, eri_mss_pars = get_mss_pars(eri_logfile, eri_cell_idx,'eaw')
+        if (eri_cell_pos >= 0) and (not eri_cell_pos == 999) and (not eri_cell_pos == 998):
+            eri_cell_idx, eri_cell_pos, eri_cell_pars = get_mgcep_cell_pars(eri_logfile, eri_cell_idx)
+            while(eri_cell_pos >= 0) and (not eri_cell_pos == 999) and (not eri_cell_pos == 998):
+                eri_cell_idx, eri_cell_pos, eri_cell_pars = get_mgcep_cell_pars(eri_logfile, eri_cell_idx)
+                if(eri_cell_pos >= 0) and (not eri_cell_pos == 999) and (not eri_cell_pos == 998):
+                    new_CELL = eri_mss_pars + eri_cell_pars
+                    df_eri_2g_cell_full.loc[eri_cell_count] = new_CELL
+                    eri_cell_count += 1
+                eri_cell_idx += 1
+        eri_cell_idx += 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+
+    df_eri_2g_cell_summ = df_eri_2g_cell_full
+    eri_drop_col = ['CO', 'RO', 'NCS', 'EA']
+    df_eri_2g_cell_summ = df_eri_2g_cell_summ.drop(columns=eri_drop_col)
+    eri_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
+    df_eri_2g_cell_summ = df_eri_2g_cell_summ[eri_col_summ]
+    df_eri_2g_cell_summ
+
+    return df_eri_2g_cell_full, df_eri_2g_cell_summ
+
+
 
 ###############################################################################################################################################
 #################################     Command Generation Functions     ########################################################################
