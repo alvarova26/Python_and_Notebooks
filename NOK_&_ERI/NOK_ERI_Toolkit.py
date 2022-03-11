@@ -906,41 +906,40 @@ def get_2g_cell_nok(log_file_path):
 
     # Create & Init & Set the NOKIA pd.DataFrame
     nok_col_names = ['MSS','Date','Time','Name','Number','NE','NE_No','LAC_Name','MCC','MNC','LAC','CI','Status','RZ', 'CDR']
-    df_nok_2g_cell = pd.DataFrame(columns=nok_col_names)
-    df_nok_2g_cell.loc[0] = [nok_cell_mss_name, nok_cell_mss_date, nok_cell_mss_time, nok_cell_name, nok_cell_no, 
-                                nok_cell_bsc_name, nok_cell_bsc_no, nok_cell_lac_name, nok_cell_lac_no, nok_cell_mcc,
-                                nok_cell_mnc, nok_cell_ci, nok_cell_stat, nok_cell_rz, nok_cell_cdr]
+    df_nok_2g_cell_full = pd.DataFrame(columns=nok_col_names)
+    df_nok_2g_cell_full.loc[0] = [nok_cell_mss_name, nok_cell_mss_date, nok_cell_mss_time, nok_cell_name, nok_cell_no, 
+                                    nok_cell_bsc_name, nok_cell_bsc_no, nok_cell_lac_name, nok_cell_lac_no, nok_cell_mcc,
+                                    nok_cell_mnc, nok_cell_ci, nok_cell_stat, nok_cell_rz, nok_cell_cdr]
 
     # Run main block (txt => pd.DataFrame)
     while (nok_cell_idx < len(nok_logfile)-1):
         nok_cell_idx, nok_cell_pos, nok_cell_mss_pars = get_mss_pars(my_file=nok_logfile,
-                                                                    start_idx=nok_cell_idx,
-                                                                    my_cmd='ZEPO;')
+                                                                        start_idx=nok_cell_idx,
+                                                                        my_cmd='ZEPO;')
         while (nok_cell_idx < len(nok_logfile)-1) and (not nok_cell_pos == 999):
             nok_cell_idx, nok_cell_pos, nok_cell_pars = get_zepo_2g_cell_pars(my_file=nok_logfile,
-                                                                             start_idx=nok_cell_idx)
+                                                                                start_idx=nok_cell_idx)
             if (nok_cell_pos >= 0) and (not nok_cell_pos == 999):
                 new_cell = nok_cell_mss_pars + nok_cell_pars
-                df_nok_2g_cell.loc[nok_cell_count] = new_cell
+                df_nok_2g_cell_full.loc[nok_cell_count] = new_cell
                 nok_cell_count = nok_cell_count + 1
         nok_cell_idx = nok_cell_idx + 1
 
-
     # DataFrame => Drop some columns to get just the most important ones.
 
-    df_nok_2g_cgi = df_nok_2g_cell
-    df_nok_2g_cgi['CGI'] =  df_nok_2g_cgi['MCC'] + '-' + \
-                            df_nok_2g_cgi['MNC'] + '-' + \
-                            df_nok_2g_cgi['LAC'] + '-' + \
-                            df_nok_2g_cgi['CI']
+    df_nok_2g_cell_summ = df_nok_2g_cell_full
+    df_nok_2g_cell_summ['CGI'] =  df_nok_2g_cell_summ['MCC'] + '-' + \
+                                    df_nok_2g_cell_summ['MNC'] + '-' + \
+                                    df_nok_2g_cell_summ['LAC'] + '-' + \
+                                    df_nok_2g_cell_summ['CI']
 
     nok_drop_col = ['Number', 'NE_No', 'LAC_Name', 'Status', 'RZ', 'CDR']
-    df_nok_2g_cgi = df_nok_2g_cgi.drop(columns=nok_drop_col)
-    df_nok_2g_cgi['MSS'] = df_nok_2g_cgi['MSS'].str.replace(r'0', '')
+    df_nok_2g_cell_summ = df_nok_2g_cell_summ.drop(columns=nok_drop_col)
+    df_nok_2g_cell_summ['MSS'] = df_nok_2g_cell_summ['MSS'].str.replace(r'0', '')
     nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
-    df_nok_2g_cgi = df_nok_2g_cgi[nok_col_summ]
+    df_nok_2g_cell_summ = df_nok_2g_cell_summ[nok_col_summ]
 
-    return df_nok_2g_cell, df_nok_2g_cgi
+    return df_nok_2g_cell_full, df_nok_2g_cell_summ
 
 
 ###############################################################################################################################################
