@@ -1086,6 +1086,91 @@ def get_lai_x_rnc_eri(log_file_path):
 
     return df_eri_lai_x_rnc_full, df_eri_lai_x_rnc_summ
 
+def get_lai_x_rnc_nok(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all the LAI x RNC mapping of NOKIA's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full LAI x RNC mapping of NOKIA's MSSs
+        + df_summ       => DataFrame with summarized LAI x RNC mapping of NOKIA's MSSs
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init NOKIA Variables
+    nok_lai_mss_name = '0'
+    nok_lai_mss_date = '0'
+    nok_lai_mss_time = '0'
+    nok_lai_rnc_name = '0'
+    nok_lai_rnc_mcc = '0'
+    nok_lai_rnc_mnc = '0'
+    nok_lai_rnc_id = '0'
+    nok_lai_rnc_mul_plmn = '0'
+    nok_lai_rnc_stat = '0'
+    nok_lai_rnc_ostat = '0'
+    nok_lai_rnc_lai_mcc = '0'
+    nok_lai_rnc_lai_mnc = '0'
+    nok_lai_rnc_lai_no = '0'
+
+    nok_mss_pars = [nok_lai_mss_name, nok_lai_mss_date, nok_lai_mss_time]
+    nok_rnc_pars = [nok_lai_rnc_name, nok_lai_rnc_mcc, nok_lai_rnc_mnc, nok_lai_rnc_id, nok_lai_rnc_mul_plmn, 
+                        nok_lai_rnc_stat, nok_lai_rnc_ostat]
+    nok_rnc_lai_pars = [nok_lai_rnc_lai_mcc, nok_lai_rnc_lai_mnc, nok_lai_rnc_lai_no]
+
+    nok_lai_idx = 0
+    nok_lai_pos = 0
+    nok_lai_rnc_count = 0
+    nok_lai_rnc_flag = 0
+
+    # Open & Load NOKIA logfile
+    nok_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the NOKIA pd.DataFrame
+    nok_col_names = ['MSS','Date','Time','RNC','RNC_MCC','RNC_MNC','RNC_ID','RNC_MULT_PLMN',
+                        'RNC_STAT','RNC_OP_STAT','MCC','MNC','LAC']
+    df_nok_lai_x_rnc_full = pd.DataFrame(columns=nok_col_names)
+    df_nok_lai_x_rnc_full.loc[0] = [nok_lai_mss_name, nok_lai_mss_date, nok_lai_mss_time, nok_lai_rnc_name,
+                                        nok_lai_rnc_mcc, nok_lai_rnc_mnc, nok_lai_rnc_id, nok_lai_rnc_mul_plmn, nok_lai_rnc_stat,
+                                        nok_lai_rnc_ostat, nok_lai_rnc_lai_mcc, nok_lai_rnc_lai_mnc, nok_lai_rnc_lai_no]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (nok_lai_idx < len(nok_logfile)-1):
+        nok_lai_idx, nok_lai_pos, nok_mss_pars = get_mss_pars(nok_logfile, nok_lai_idx,'ZE2I::RT=ALL;')
+        while (nok_lai_idx < len(nok_logfile)-1) and (not nok_lai_pos == 999):
+            nok_lai_idx, nok_lai_pos, nok_rnc_pars = get_ze2i_rnc_pars(nok_logfile, nok_lai_idx)
+            while (nok_lai_idx < len(nok_logfile)-1) and (not nok_lai_pos == 999):
+                nok_lai_idx, nok_lai_pos, nok_lai_rnc_flag, nok_rnc_lai_pars = get_ze2i_rnc_lac_pars(nok_logfile, nok_lai_idx, nok_lai_rnc_flag)
+                if nok_lai_pos == 999:                                          # if 'COMMAND EXECUTED'
+                    nok_lai_idx += 1                                            # Increase index to read next line
+                    break
+                else:
+                    if (nok_lai_rnc_flag == 1):
+                        new_rnc_lai = nok_mss_pars + nok_rnc_pars + nok_rnc_lai_pars
+                        df_nok_lai_x_rnc_full.loc[nok_lai_rnc_count] = new_rnc_lai
+                        nok_lai_rnc_count += 1
+                    else:
+                        break
+                
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_nok_lai_x_rnc_summ = df_nok_lai_x_rnc_full
+    df_nok_lai_x_rnc_summ['MSS'] = df_nok_lai_x_rnc_summ['MSS'].str.replace(r'0', '')
+    df_nok_lai_x_rnc_summ['LAI'] =  df_nok_lai_x_rnc_summ['MCC'] + '-' + df_nok_lai_x_rnc_summ['MNC'] + '-' + df_nok_lai_x_rnc_summ['LAC']
+    df_nok_lai_x_rnc_summ['MSS-LAI'] =  df_nok_lai_x_rnc_summ['MSS'] + '-' + df_nok_lai_x_rnc_summ['LAI']
+    df_nok_lai_x_rnc_summ['NE-LAI'] =  df_nok_lai_x_rnc_summ['RNC'] + '-' + df_nok_lai_x_rnc_summ['LAI']
+
+    nok_drop_col = ['RNC_MCC', 'RNC_MNC', 'RNC_MULT_PLMN', 'RNC_STAT', 'RNC_OP_STAT', 'RNC_ID']
+    df_nok_lai_x_rnc_summ = df_nok_lai_x_rnc_summ.drop(columns=nok_drop_col)
+    nok_col_summ = ['MSS', 'Date', 'Time', 'MCC', 'MNC', 'LAC', 'LAI', 'MSS-LAI', 'NE-LAI', 'RNC']
+    df_nok_lai_x_rnc_summ = df_nok_lai_x_rnc_summ[nok_col_summ]
+
+    return df_nok_lai_x_rnc_full, df_nok_lai_x_rnc_summ
+
 
 
 ###############################################################################################################################################
