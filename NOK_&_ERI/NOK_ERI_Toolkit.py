@@ -927,13 +927,19 @@ def get_2g_cell_nok(log_file_path):
 
     # DataFrame => Drop some columns to get just the most important ones.
     df_nok_2g_cell_summ = df_nok_2g_cell_full
+    df_nok_2g_cell_full['MSS'] = df_nok_2g_cell_full['MSS'].str.replace(r'0', '')
+    df_nok_2g_cell_summ['MSS'] = df_nok_2g_cell_summ['MSS'].str.replace(r'0', '')
+    df_nok_2g_cell_full['LAI'] = df_nok_2g_cell_full['MCC'] + '-' + \
+                                    df_nok_2g_cell_full['MNC'] + '-' + \
+                                    df_nok_2g_cell_full['LAC']
+    df_nok_2g_cell_full['MSS-LAI'] = df_nok_2g_cell_full['MSS'] + '-' + \
+                                        df_nok_2g_cell_full['LAI']
     df_nok_2g_cell_summ['CGI'] =  df_nok_2g_cell_summ['MCC'] + '-' + \
                                     df_nok_2g_cell_summ['MNC'] + '-' + \
                                     df_nok_2g_cell_summ['LAC'] + '-' + \
                                     df_nok_2g_cell_summ['CI']
     nok_drop_col = ['Number', 'NE_No', 'LAC_Name', 'Status', 'RZ', 'CDR']
     df_nok_2g_cell_summ = df_nok_2g_cell_summ.drop(columns=nok_drop_col)
-    df_nok_2g_cell_summ['MSS'] = df_nok_2g_cell_summ['MSS'].str.replace(r'0', '')
     nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
     df_nok_2g_cell_summ = df_nok_2g_cell_summ[nok_col_summ]
 
@@ -1006,85 +1012,17 @@ def get_2g_cell_eri(log_file_path):
 
     # DataFrame => Drop some columns to get just the most important ones.
     df_eri_2g_cell_summ = df_eri_2g_cell_full
+    df_eri_2g_cell_full['LAI'] = df_eri_2g_cell_full['MCC'] + '-' + \
+                                    df_eri_2g_cell_full['MNC'] + '-' + \
+                                    df_eri_2g_cell_full['LAC']
+    df_eri_2g_cell_full['MSS-LAI'] = df_eri_2g_cell_full['MSS'] + '-' + \
+                                        df_eri_2g_cell_full['LAI']
     eri_drop_col = ['CO', 'RO', 'NCS', 'EA']
     df_eri_2g_cell_summ = df_eri_2g_cell_summ.drop(columns=eri_drop_col)
     eri_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
     df_eri_2g_cell_summ = df_eri_2g_cell_summ[eri_col_summ]
 
     return df_eri_2g_cell_full, df_eri_2g_cell_summ
-
-def get_lai_x_rnc_eri(log_file_path):
-    '''
-    Function:   
-        + Process a log_file with all the LAI x RNC mapping of ERICSSON's MSSs
-    Arguments:      
-        + log_file_path => path to the log_file
-    Output:     
-        + df_full       => DataFrame with full LAI x RNC mapping of ERICSSON's MSSs
-        + df_summ       => DataFrame with summarized LAI x RNC mapping of ERICSSON's MSSs
-    '''
-    
-    # Variable control
-    assert isinstance(log_file_path, str),'Path to look for the file must be string'
-    assert len(log_file_path) > 0, 'File is empty'
-
-    ###################################################### Code
-
-    # Init ERICSSON Variables
-    eri_lai_mss_name = '0'
-    eri_lai_mss_date = '0'
-    eri_lai_mss_time = '0'
-    eri_rnc_name = '0'
-    eri_rnc_lai_mcc = '0'
-    eri_rnc_lai_mnc = '0'
-    eri_rnc_lai_no = '0'
-
-    eri_mss_pars = [eri_lai_mss_name, eri_lai_mss_date, eri_lai_mss_time]
-    eri_rnc_pars = [eri_rnc_name]
-    eri_rnc_lai_pars = [eri_rnc_lai_mcc, eri_rnc_lai_mnc, eri_rnc_lai_no]
-
-    eri_lai_idx = 0
-    eri_lai_pos = 0
-    eri_lai_count = 0
-    eri_lai_flag = 0
-
-    # Open & Load ERICSSON logfile
-    eri_logfile = open_file(log_file_path)
-
-    # Create & Init & Set the ERICSSON pd.DataFrame
-    eri_col_names = ['MSS','Date','Time','RNC','MCC','MNC','LAC']
-    df_eri_lai_x_rnc_full = pd.DataFrame(columns=eri_col_names)
-    df_eri_lai_x_rnc_full.loc[0] = [eri_lai_mss_name, eri_lai_mss_date, eri_lai_mss_time, eri_rnc_name,
-                                        eri_rnc_lai_mcc, eri_rnc_lai_mnc, eri_rnc_lai_no]
-
-    # Run the main program (txt => pd.DataFrame)
-    while (eri_lai_idx < len(eri_logfile)-1):
-        eri_lai_idx, eri_lai_pos, eri_mss_pars = get_mss_pars(eri_logfile, eri_lai_idx,'eaw')
-        while(eri_lai_pos >= 0) and (not eri_lai_pos == 998):
-            eri_lai_idx, eri_lai_pos, eri_rnc_pars = get_mgmap_rnc_pars(eri_logfile, eri_lai_idx)
-            if (eri_lai_pos >= 0) and (not eri_lai_pos == 999) and (not eri_lai_pos == 998):
-                eri_lai_idx, eri_lai_pos, eri_rnc_lai_pars = get_mgmap_rnc_lac_pars(eri_logfile, eri_lai_idx)
-                while(eri_lai_pos >= 0) and (not eri_lai_pos == 999) and (not eri_lai_pos == 998):
-                    eri_lai_idx, eri_lai_pos, eri_rnc_lai_pars = get_mgmap_rnc_lac_pars(eri_logfile, eri_lai_idx)
-                    if(eri_lai_pos >= 0) and (not eri_lai_pos == 999) and (not eri_lai_pos == 998):
-                        new_lai_rnc = eri_mss_pars + eri_rnc_pars + eri_rnc_lai_pars
-                        df_eri_lai_x_rnc_full.loc[eri_lai_count] = new_lai_rnc
-                        eri_lai_count += 1
-                    eri_lai_idx += 1
-            eri_lai_idx += 1
-        eri_lai_idx += 1
-
-    # DataFrame => Drop some columns to get just the most important ones.
-    df_eri_lai_x_rnc_summ = df_eri_lai_x_rnc_full
-    df_eri_lai_x_rnc_summ['LAI'] =  df_eri_lai_x_rnc_summ['MCC'] + '-' + df_eri_lai_x_rnc_summ['MNC'] + '-' + df_eri_lai_x_rnc_summ['LAC']
-    df_eri_lai_x_rnc_summ['MSS-LAI'] =  df_eri_lai_x_rnc_summ['MSS'] + '-' + df_eri_lai_x_rnc_summ['LAI']
-    df_eri_lai_x_rnc_summ['NE-LAI'] =  df_eri_lai_x_rnc_summ['RNC'] + '-' + df_eri_lai_x_rnc_summ['LAI']
-    eri_drop_col = []
-    df_eri_lai_x_rnc_summ = df_eri_lai_x_rnc_summ.drop(columns=eri_drop_col)
-    eri_col_summ = ['MSS', 'Date', 'Time', 'MCC', 'MNC', 'LAC', 'LAI', 'MSS-LAI', 'NE-LAI', 'RNC']
-    df_eri_lai_x_rnc_summ = df_eri_lai_x_rnc_summ[eri_col_summ]
-
-    return df_eri_lai_x_rnc_full, df_eri_lai_x_rnc_summ
 
 def get_lai_x_rnc_nok(log_file_path):
     '''
@@ -1159,11 +1097,22 @@ def get_lai_x_rnc_nok(log_file_path):
                 
     # DataFrame => Drop some columns to get just the most important ones.
     df_nok_lai_x_rnc_summ = df_nok_lai_x_rnc_full
+    df_nok_lai_x_rnc_full['MSS'] = df_nok_lai_x_rnc_full['MSS'].str.replace(r'0', '')
     df_nok_lai_x_rnc_summ['MSS'] = df_nok_lai_x_rnc_summ['MSS'].str.replace(r'0', '')
-    df_nok_lai_x_rnc_summ['LAI'] =  df_nok_lai_x_rnc_summ['MCC'] + '-' + df_nok_lai_x_rnc_summ['MNC'] + '-' + df_nok_lai_x_rnc_summ['LAC']
-    df_nok_lai_x_rnc_summ['MSS-LAI'] =  df_nok_lai_x_rnc_summ['MSS'] + '-' + df_nok_lai_x_rnc_summ['LAI']
-    df_nok_lai_x_rnc_summ['NE-LAI'] =  df_nok_lai_x_rnc_summ['RNC'] + '-' + df_nok_lai_x_rnc_summ['LAI']
-
+    df_nok_lai_x_rnc_full['LAI'] = df_nok_lai_x_rnc_full['MCC'] + '-' + \
+                                    df_nok_lai_x_rnc_full['MNC'] + '-' + \
+                                    df_nok_lai_x_rnc_full['LAC']
+    df_nok_lai_x_rnc_full['MSS-LAI'] = df_nok_lai_x_rnc_full['MSS'] + '-' + \
+                                        df_nok_lai_x_rnc_full['LAI']
+    df_nok_lai_x_rnc_full['NE-LAI'] = df_nok_lai_x_rnc_full['RNC'] + '-' + \
+                                        df_nok_lai_x_rnc_full['LAI']
+    df_nok_lai_x_rnc_summ['LAI'] = df_nok_lai_x_rnc_summ['MCC'] + '-' + \
+                                    df_nok_lai_x_rnc_summ['MNC'] + '-' + \
+                                    df_nok_lai_x_rnc_summ['LAC']
+    df_nok_lai_x_rnc_summ['MSS-LAI'] = df_nok_lai_x_rnc_summ['MSS'] + '-' + \
+                                        df_nok_lai_x_rnc_summ['LAI']
+    df_nok_lai_x_rnc_summ['NE-LAI'] = df_nok_lai_x_rnc_summ['RNC'] + '-' + \
+                                        df_nok_lai_x_rnc_summ['LAI']
     nok_drop_col = ['RNC_MCC', 'RNC_MNC', 'RNC_MULT_PLMN', 'RNC_STAT', 'RNC_OP_STAT', 'RNC_ID']
     df_nok_lai_x_rnc_summ = df_nok_lai_x_rnc_summ.drop(columns=nok_drop_col)
     nok_col_summ = ['MSS', 'Date', 'Time', 'MCC', 'MNC', 'LAC', 'LAI', 'MSS-LAI', 'NE-LAI', 'RNC']
@@ -1171,7 +1120,91 @@ def get_lai_x_rnc_nok(log_file_path):
 
     return df_nok_lai_x_rnc_full, df_nok_lai_x_rnc_summ
 
-def get_3g_cell_no_lai_nok(log_file_path):
+def get_lai_x_rnc_eri(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all the LAI x RNC mapping of ERICSSON's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full LAI x RNC mapping of ERICSSON's MSSs
+        + df_summ       => DataFrame with summarized LAI x RNC mapping of ERICSSON's MSSs
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init ERICSSON Variables
+    eri_lai_mss_name = '0'
+    eri_lai_mss_date = '0'
+    eri_lai_mss_time = '0'
+    eri_rnc_name = '0'
+    eri_rnc_lai_mcc = '0'
+    eri_rnc_lai_mnc = '0'
+    eri_rnc_lai_no = '0'
+
+    eri_mss_pars = [eri_lai_mss_name, eri_lai_mss_date, eri_lai_mss_time]
+    eri_rnc_pars = [eri_rnc_name]
+    eri_rnc_lai_pars = [eri_rnc_lai_mcc, eri_rnc_lai_mnc, eri_rnc_lai_no]
+
+    eri_lai_idx = 0
+    eri_lai_pos = 0
+    eri_lai_count = 0
+    eri_lai_flag = 0
+
+    # Open & Load ERICSSON logfile
+    eri_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the ERICSSON pd.DataFrame
+    eri_col_names = ['MSS','Date','Time','RNC','MCC','MNC','LAC']
+    df_eri_lai_x_rnc_full = pd.DataFrame(columns=eri_col_names)
+    df_eri_lai_x_rnc_full.loc[0] = [eri_lai_mss_name, eri_lai_mss_date, eri_lai_mss_time, eri_rnc_name,
+                                        eri_rnc_lai_mcc, eri_rnc_lai_mnc, eri_rnc_lai_no]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (eri_lai_idx < len(eri_logfile)-1):
+        eri_lai_idx, eri_lai_pos, eri_mss_pars = get_mss_pars(eri_logfile, eri_lai_idx,'eaw')
+        while(eri_lai_pos >= 0) and (not eri_lai_pos == 998):
+            eri_lai_idx, eri_lai_pos, eri_rnc_pars = get_mgmap_rnc_pars(eri_logfile, eri_lai_idx)
+            if (eri_lai_pos >= 0) and (not eri_lai_pos == 999) and (not eri_lai_pos == 998):
+                eri_lai_idx, eri_lai_pos, eri_rnc_lai_pars = get_mgmap_rnc_lac_pars(eri_logfile, eri_lai_idx)
+                while(eri_lai_pos >= 0) and (not eri_lai_pos == 999) and (not eri_lai_pos == 998):
+                    eri_lai_idx, eri_lai_pos, eri_rnc_lai_pars = get_mgmap_rnc_lac_pars(eri_logfile, eri_lai_idx)
+                    if(eri_lai_pos >= 0) and (not eri_lai_pos == 999) and (not eri_lai_pos == 998):
+                        new_lai_rnc = eri_mss_pars + eri_rnc_pars + eri_rnc_lai_pars
+                        df_eri_lai_x_rnc_full.loc[eri_lai_count] = new_lai_rnc
+                        eri_lai_count += 1
+                    eri_lai_idx += 1
+            eri_lai_idx += 1
+        eri_lai_idx += 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_eri_lai_x_rnc_summ = df_eri_lai_x_rnc_full
+    df_eri_lai_x_rnc_full['LAI'] =  df_eri_lai_x_rnc_full['MCC'] + '-' + \
+                                    df_eri_lai_x_rnc_full['MNC'] + '-' + \
+                                    df_eri_lai_x_rnc_full['LAC']
+    df_eri_lai_x_rnc_full['MSS-LAI'] =  df_eri_lai_x_rnc_full['MSS'] + '-' + \
+                                        df_eri_lai_x_rnc_full['LAI']
+    df_eri_lai_x_rnc_full['NE-LAI'] =  df_eri_lai_x_rnc_full['RNC'] + '-' + \
+                                        df_eri_lai_x_rnc_full['LAI']
+    df_eri_lai_x_rnc_summ['LAI'] =  df_eri_lai_x_rnc_summ['MCC'] + '-' + \
+                                    df_eri_lai_x_rnc_summ['MNC'] + '-' + \
+                                    df_eri_lai_x_rnc_summ['LAC']
+    df_eri_lai_x_rnc_summ['MSS-LAI'] =  df_eri_lai_x_rnc_summ['MSS'] + '-' + \
+                                        df_eri_lai_x_rnc_summ['LAI']
+    df_eri_lai_x_rnc_summ['NE-LAI'] =  df_eri_lai_x_rnc_summ['RNC'] + '-' + \
+                                        df_eri_lai_x_rnc_summ['LAI']
+    eri_drop_col = []
+    df_eri_lai_x_rnc_summ = df_eri_lai_x_rnc_summ.drop(columns=eri_drop_col)
+    eri_col_summ = ['MSS', 'Date', 'Time', 'MCC', 'MNC', 'LAC', 'LAI', 'MSS-LAI', 'NE-LAI', 'RNC']
+    df_eri_lai_x_rnc_summ = df_eri_lai_x_rnc_summ[eri_col_summ]
+
+    return df_eri_lai_x_rnc_full, df_eri_lai_x_rnc_summ
+
+def get_3g_cell_no_ne_nok(log_file_path):
     '''
     Function:   
         + Process a log_file with all the 3G cells of NOKIA's MSSs
@@ -1215,10 +1248,9 @@ def get_3g_cell_no_lai_nok(log_file_path):
     nok_logfile = open_file(log_file_path)
 
     # Create & Init & Set the NOKIA pd.DataFrame
-
     nok_col_names = ['MSS','Date','Time','Name','Number','LAC_Name', 'LAC','MCC','MNC','CI','Status','RZ', 'CDR']
-    df_nok_3g_cell_no_lai_full = pd.DataFrame(columns=nok_col_names)
-    df_nok_3g_cell_no_lai_full.loc[0] = [nok_sa_mss_name, nok_sa_mss_date, nok_sa_mss_time, nok_sa_name, nok_sa_no,
+    df_nok_3g_cell_no_ne_full = pd.DataFrame(columns=nok_col_names)
+    df_nok_3g_cell_no_ne_full.loc[0] = [nok_sa_mss_name, nok_sa_mss_date, nok_sa_mss_time, nok_sa_name, nok_sa_no,
                                             nok_sa_lac_name, nok_sa_lac_no, nok_sa_mcc, nok_sa_mnc, nok_sa_ci,
                                             nok_sa_stat, nok_sa_rz, nok_sa_cdr]
 
@@ -1229,26 +1261,31 @@ def get_3g_cell_no_lai_nok(log_file_path):
             nok_sa_idx, nok_sa_pos, nok_sa_pars = get_zepo_3g_sa_pars(nok_logfile, nok_sa_idx)
             if (nok_sa_pos >= 0) and (not nok_sa_pos == 999):
                 new_SA = nok_mss_pars + nok_sa_pars
-                df_nok_3g_cell_no_lai_full.loc[nok_sa_count] = new_SA
+                df_nok_3g_cell_no_ne_full.loc[nok_sa_count] = new_SA
                 nok_sa_count += 1
         nok_sa_idx += 1
 
     # DataFrame => Drop some columns to get just the most important ones.
-    df_nok_3g_cell_no_lai_summ = df_nok_3g_cell_no_lai_full
-    df_nok_3g_cell_no_lai_summ['CGI'] =  df_nok_3g_cell_no_lai_summ['MCC'] + '-' + \
-                                            df_nok_3g_cell_no_lai_summ['MNC'] + '-' + \
-                                            df_nok_3g_cell_no_lai_summ['LAC'] + '-' + \
-                                            df_nok_3g_cell_no_lai_summ['CI']
-
+    df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_full
+    df_nok_3g_cell_no_ne_full['MSS'] = df_nok_3g_cell_no_ne_full['MSS'].str.replace(r'0', '')
+    df_nok_3g_cell_no_ne_summ['MSS'] = df_nok_3g_cell_no_ne_summ['MSS'].str.replace(r'0', '')
+    df_nok_3g_cell_no_ne_full['LAI'] = df_nok_3g_cell_no_ne_full['MCC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_full['MNC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_full['LAC']
+    df_nok_3g_cell_no_ne_full['MSS-LAI'] = df_nok_3g_cell_no_ne_full['MSS'] + '-' + \
+                                            df_nok_3g_cell_no_ne_full['LAI']
+    df_nok_3g_cell_no_ne_summ['CGI'] =  df_nok_3g_cell_no_ne_summ['MCC'] + '-' + \
+                                            df_nok_3g_cell_no_ne_summ['MNC'] + '-' + \
+                                            df_nok_3g_cell_no_ne_summ['LAC'] + '-' + \
+                                            df_nok_3g_cell_no_ne_summ['CI']
     nok_drop_col = ['Number', 'LAC_Name', 'Status', 'RZ', 'CDR']
-    df_nok_3g_cell_no_lai_summ = df_nok_3g_cell_no_lai_summ.drop(columns=nok_drop_col)
-    df_nok_3g_cell_no_lai_summ['MSS'] = df_nok_3g_cell_no_lai_summ['MSS'].str.replace(r'0', '')
+    df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_summ.drop(columns=nok_drop_col)
     nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
-    df_nok_3g_cell_no_lai_summ = df_nok_3g_cell_no_lai_summ[nok_col_summ]
+    df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_summ[nok_col_summ]
     
-    return df_nok_3g_cell_no_lai_full, df_nok_3g_cell_no_lai_summ
+    return df_nok_3g_cell_no_ne_full, df_nok_3g_cell_no_ne_summ
 
-def get_3g_cell_no_lai_eri(log_file_path):
+def get_3g_cell_no_ne_eri(log_file_path):
     '''
     Function:   
         + Process a log_file with all the 3G cells of ERICSSON's MSSs
@@ -1292,8 +1329,8 @@ def get_3g_cell_no_lai_eri(log_file_path):
 
     # Create & Init & Set the ERICSSON pd.DataFrame
     eri_col_names = ['MSS','Date','Time','Name','CGI','MCC','MNC','LAC','CI','RO','CO','EA']
-    df_eri_3g_cell_no_lai_full = pd.DataFrame(columns=eri_col_names)
-    df_eri_3g_cell_no_lai_full.loc[0] = [eri_area_mss_name, eri_area_mss_date, eri_area_mss_time,
+    df_eri_3g_cell_no_ne_full = pd.DataFrame(columns=eri_col_names)
+    df_eri_3g_cell_no_ne_full.loc[0] = [eri_area_mss_name, eri_area_mss_date, eri_area_mss_time,
                                             eri_area_name, eri_area_cgi, eri_area_mcc, eri_area_mnc,
                                             eri_area_lac, eri_area_ci, eri_area_ro, eri_area_co, eri_area_ea]
 
@@ -1306,19 +1343,221 @@ def get_3g_cell_no_lai_eri(log_file_path):
                 eri_area_idx, eri_area_pos, eri_area_pars = get_mgaap_area_pars(eri_logfile, eri_area_idx)
                 if(eri_area_pos >= 0) and (not eri_area_pos == 999) and (not eri_area_pos == 998):
                     new_area = eri_mss_pars + eri_area_pars
-                    df_eri_3g_cell_no_lai_full.loc[eri_area_count] = new_area
+                    df_eri_3g_cell_no_ne_full.loc[eri_area_count] = new_area
                     eri_area_count += 1
                 eri_area_idx += 1
         eri_area_idx += 1
 
     # DataFrame => Drop some columns to get just the most important ones.
-    df_eri_3g_cell_no_lai_summ = df_eri_3g_cell_no_lai_full
+    df_eri_3g_cell_no_ne_summ = df_eri_3g_cell_no_ne_full
+    df_eri_3g_cell_no_ne_full['LAI'] =  df_eri_3g_cell_no_ne_full['MCC'] + '-' + \
+                                        df_eri_3g_cell_no_ne_full['MNC'] + '-' + \
+                                        df_eri_3g_cell_no_ne_full['LAC']
+    df_eri_3g_cell_no_ne_full['MSS-LAI'] =  df_eri_3g_cell_no_ne_full['MSS'] + '-' + \
+                                            df_eri_3g_cell_no_ne_full['LAI']
     eri_drop_col = ['CO', 'RO', 'EA']
-    df_eri_3g_cell_no_lai_summ = df_eri_3g_cell_no_lai_summ.drop(columns=eri_drop_col)
+    df_eri_3g_cell_no_ne_summ = df_eri_3g_cell_no_ne_summ.drop(columns=eri_drop_col)
     eri_col_summ = ['MSS', 'Date', 'Time', 'Name', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
-    df_eri_3g_cell_no_lai_summ = df_eri_3g_cell_no_lai_summ[eri_col_summ]
+    df_eri_3g_cell_no_ne_summ = df_eri_3g_cell_no_ne_summ[eri_col_summ]
 
-    return df_eri_3g_cell_no_lai_full, df_eri_3g_cell_no_lai_summ
+    return df_eri_3g_cell_no_ne_full, df_eri_3g_cell_no_ne_summ
+
+    '''
+    Function:   
+        + Process a log_file with all the 3G cells of NOKIA's MSSs including the LAI<=>RNC mapping
+    Arguments:      
+        + log_file_path => path to the log_file
+        + df_mapp       => DataFrame with the NOKIA's LAI<=>RNC mapping
+    Output:     
+        + df_full       => DataFrame with full 2G cells of NOKIA's MSSs including the LAI<=>RNC mapping
+        + df_summ       => DataFrame with summarized 2G cells of NOKIA's MSSs including the LAI<=>RNC mapping
+    '''
+    
+    # Variable control
+    assert isinstance(df_mapp, pd.DataFrame),'Received argument must be a pd.DataFrame'
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code (get_3g_cell_no_ne_nok part)
+
+    # Init NOKIA Variables
+    nok_sa_mss_name = '0'
+    nok_sa_mss_date = '0'
+    nok_sa_mss_time = '0'
+    nok_sa_name = '0'
+    nok_sa_no = '0'
+    nok_sa_lac_name = '0'
+    nok_sa_lac_no = '0'
+    nok_sa_mcc = '0'
+    nok_sa_mnc = '0'
+    nok_sa_ci = '0'
+    nok_sa_stat = '0'
+    nok_sa_rz = '0'
+    nok_sa_cdr = '0'
+
+    nok_mss_pars = [nok_sa_mss_name, nok_sa_mss_date, nok_sa_mss_time]
+    nok_sa_pars = [nok_sa_name, nok_sa_no, nok_sa_lac_name, nok_sa_lac_no, nok_sa_mcc, nok_sa_mnc,
+                    nok_sa_ci, nok_sa_stat, nok_sa_rz, nok_sa_cdr]
+
+    nok_sa_idx = 0
+    nok_sa_pos = 0
+    nok_sa_count = 0
+
+    # Open & Load NOKIA logfile
+    nok_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the NOKIA pd.DataFrame
+
+    nok_col_names = ['MSS','Date','Time','Name','Number','LAC_Name', 'LAC','MCC','MNC','CI','Status','RZ', 'CDR']
+    df_nok_3g_cell_no_ne_full = pd.DataFrame(columns=nok_col_names)
+    df_nok_3g_cell_no_ne_full.loc[0] = [nok_sa_mss_name, nok_sa_mss_date, nok_sa_mss_time, nok_sa_name, nok_sa_no,
+                                            nok_sa_lac_name, nok_sa_lac_no, nok_sa_mcc, nok_sa_mnc, nok_sa_ci,
+                                            nok_sa_stat, nok_sa_rz, nok_sa_cdr]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (nok_sa_idx < len(nok_logfile)-1):
+        nok_sa_idx, nok_sa_pos, nok_mss_pars = get_mss_pars(nok_logfile, nok_sa_idx,'ZEPO:TYPE=SA;')
+        while (nok_sa_idx < len(nok_logfile)-1) and (not nok_sa_pos == 999):
+            nok_sa_idx, nok_sa_pos, nok_sa_pars = get_zepo_3g_sa_pars(nok_logfile, nok_sa_idx)
+            if (nok_sa_pos >= 0) and (not nok_sa_pos == 999):
+                new_SA = nok_mss_pars + nok_sa_pars
+                df_nok_3g_cell_no_ne_full.loc[nok_sa_count] = new_SA
+                nok_sa_count += 1
+        nok_sa_idx += 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_full
+    df_nok_3g_cell_no_ne_summ['CGI'] =  df_nok_3g_cell_no_ne_summ['MCC'] + '-' + \
+                                            df_nok_3g_cell_no_ne_summ['MNC'] + '-' + \
+                                            df_nok_3g_cell_no_ne_summ['LAC'] + '-' + \
+                                            df_nok_3g_cell_no_ne_summ['CI']
+
+    nok_drop_col = ['Number', 'LAC_Name', 'Status', 'RZ', 'CDR']
+    df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_summ.drop(columns=nok_drop_col)
+    df_nok_3g_cell_no_ne_summ['MSS'] = df_nok_3g_cell_no_ne_summ['MSS'].str.replace(r'0', '')
+    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
+    df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_summ[nok_col_summ]
+    df_nok_3g_cell_no_ne_summ['LAI'] = df_nok_3g_cell_no_ne_summ['MCC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_summ['MNC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_summ['LAC']
+    df_nok_3g_cell_no_ne_summ['MSS-LAI'] = df_nok_3g_cell_no_ne_summ['MSS'] + '-' + \
+                                            df_nok_3g_cell_no_ne_summ['LAI']
+    df_nok_3g_cell_no_ne_full['LAI'] = df_nok_3g_cell_no_ne_full['MCC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_full['MNC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_full['LAC']
+    df_nok_3g_cell_no_ne_full['MSS-LAI'] = df_nok_3g_cell_no_ne_full['MSS'] + '-' + \
+                                            df_nok_3g_cell_no_ne_full['LAI']
+
+    ###################################################### Code (join LAI<=>RNC mapping with the 3G cells)
+
+    # Create a dictionary to map MSS-LAI to RNC & mapping on key=MSS-LAI
+    my_dict = dict(zip(df_mapp['MSS-LAI'], df_mapp['RNC']))                                     # Create a dictionary to map MSS-LAI to RNC
+    df_nok_3g_cell_no_ne_full['NE'] = df_nok_3g_cell_no_ne_full['MSS-LAI'].map(my_dict)         # Create a new column NE (RNC) for mapping on key=MSS-LAI
+    df_nok_3g_cell_no_ne_summ['NE'] = df_nok_3g_cell_no_ne_summ['MSS-LAI'].map(my_dict)         # Create a new column NE (RNC) for mapping on key=MSS-LAI
+    df_nok_3g_cell_full = df_nok_3g_cell_no_ne_full                                    
+    df_nok_3g_cell_summ = df_nok_3g_cell_no_ne_summ
+    nok_drop_col = ['LAI', 'MSS-LAI']                                                           # Define columns to drop 
+    df_nok_3g_cell_summ = df_nok_3g_cell_summ.drop(columns=nok_drop_col)                        # Drop columns
+    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']      # Define the column's order
+    df_nok_3g_cell_summ = df_nok_3g_cell_summ[nok_col_summ]                                     # Order the collumns
+
+    return df_nok_3g_cell_full, df_nok_3g_cell_summ
+
+def get_3g_cell_nok(log_file_3g_cell_path, log_file_lai_x_rnc_mapp_path):
+    '''
+    Function:   
+        + Process two log_files with all the 3G cells of NOKIA's MSSs and the LAI<=>RNC mapping
+    Arguments:      
+        + log_file_3g_cell_path         => path to the 3G cells of NOKIA's MSSs log_file
+        + log_file_lai_x_rnc_mapp_path  => path to the LAI<=>RNC mapping of NOKIA's MSSs log_file
+    Output:     
+        + df_full                       => DataFrame with full 3G cells of NOKIA's MSSs including the LAI<=>RNC mapping
+        + df_summ                       => DataFrame with summarized 3G cells of NOKIA's MSSs including the LAI<=>RNC mapping
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_3g_cell_path, str),'Path to look for the file must be string'
+    assert len(log_file_3g_cell_path) > 0, 'File is empty'
+    assert isinstance(log_file_lai_x_rnc_mapp_path, str),'Path to look for the file must be string'
+    assert len(log_file_lai_x_rnc_mapp_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    df_nok_3g_cell_no_ne_full, df_nok_3g_cell_no_ne_summ = get_3g_cell_no_ne_nok(log_file_3g_cell_path)     # Get the 3G cells (no NE info)
+    df_nok_lai_x_rnc_full, df_nok_lai_x_rnc_summ = get_lai_x_rnc_nok(log_file_lai_x_rnc_mapp_path)          # Get the LAI<=>RNC mapping
+
+    ###################################################### Code (join LAI<=>RNC mapping with the 3G cells)
+    df_nok_3g_cell_no_ne_summ['LAI'] = df_nok_3g_cell_no_ne_summ['MCC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_summ['MNC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_summ['LAC']
+    df_nok_3g_cell_no_ne_summ['MSS-LAI'] = df_nok_3g_cell_no_ne_summ['MSS'] + '-' + \
+                                            df_nok_3g_cell_no_ne_summ['LAI']
+    df_nok_3g_cell_no_ne_full['LAI'] = df_nok_3g_cell_no_ne_full['MCC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_full['MNC'] + '-' + \
+                                        df_nok_3g_cell_no_ne_full['LAC']
+    df_nok_3g_cell_no_ne_full['MSS-LAI'] = df_nok_3g_cell_no_ne_full['MSS'] + '-' + \
+                                            df_nok_3g_cell_no_ne_full['LAI']
+
+    # Create a dictionary to map MSS-LAI to RNC & mapping on key=MSS-LAI
+    my_dict = dict(zip(df_nok_lai_x_rnc_summ['MSS-LAI'], df_nok_lai_x_rnc_summ['RNC']))         # Create a dictionary to map MSS-LAI to RNC
+    df_nok_3g_cell_no_ne_full['NE'] = df_nok_3g_cell_no_ne_full['MSS-LAI'].map(my_dict)         # Create a new column NE (RNC) for mapping on key=MSS-LAI
+    df_nok_3g_cell_no_ne_summ['NE'] = df_nok_3g_cell_no_ne_summ['MSS-LAI'].map(my_dict)         # Create a new column NE (RNC) for mapping on key=MSS-LAI
+    df_nok_3g_cell_full = df_nok_3g_cell_no_ne_full                                    
+    df_nok_3g_cell_summ = df_nok_3g_cell_no_ne_summ
+    nok_drop_col = ['LAI', 'MSS-LAI']                                                           # Define columns to drop 
+    df_nok_3g_cell_summ = df_nok_3g_cell_summ.drop(columns=nok_drop_col)                        # Drop columns
+    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']      # Define the column's order
+    df_nok_3g_cell_summ = df_nok_3g_cell_summ[nok_col_summ]                                     # Order the collumns
+
+    return df_nok_3g_cell_full, df_nok_3g_cell_summ
+
+def get_3g_cell_eri(log_file_3g_cell_path, log_file_lai_x_rnc_mapp_path):
+    '''
+    Function:   
+        + Process two log_files with all the 3G cells of ERICSSON's MSSs and the LAI<=>RNC mapping
+    Arguments:      
+        + log_file_3g_cell_path         => path to the 3G cells of ERICSSON's MSSs log_file
+        + log_file_lai_x_rnc_mapp_path  => path to the LAI<=>RNC mapping of ERICSSON's MSSs log_file
+    Output:     
+        + df_full                       => DataFrame with full 3G cells of ERICSSON's MSSs including the LAI<=>RNC mapping
+        + df_summ                       => DataFrame with summarized 3G cells of ERICSSON's MSSs including the LAI<=>RNC mapping
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_3g_cell_path, str),'Path to look for the file must be string'
+    assert len(log_file_3g_cell_path) > 0, 'File is empty'
+    assert isinstance(log_file_lai_x_rnc_mapp_path, str),'Path to look for the file must be string'
+    assert len(log_file_lai_x_rnc_mapp_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    df_eri_3g_cell_no_ne_full, df_eri_3g_cell_no_ne_summ = get_3g_cell_no_ne_eri(log_file_3g_cell_path)     # Get the 3G cells (no NE info)
+    df_eri_lai_x_rnc_full, df_eri_lai_x_rnc_summ = get_lai_x_rnc_eri(log_file_lai_x_rnc_mapp_path)          # Get the LAI<=>RNC mapping
+
+    ###################################################### Code (join LAI<=>RNC mapping with the 3G cells)
+    df_eri_3g_cell_no_ne_summ['LAI'] = df_eri_3g_cell_no_ne_summ['MCC'] + '-' + \
+                                        df_eri_3g_cell_no_ne_summ['MNC'] + '-' + \
+                                        df_eri_3g_cell_no_ne_summ['LAC']
+    df_eri_3g_cell_no_ne_summ['MSS-LAI'] = df_eri_3g_cell_no_ne_summ['MSS'] + '-' + \
+                                            df_eri_3g_cell_no_ne_summ['LAI']
+    df_eri_3g_cell_no_ne_full['LAI'] = df_eri_3g_cell_no_ne_full['MCC'] + '-' + \
+                                        df_eri_3g_cell_no_ne_full['MNC'] + '-' + \
+                                        df_eri_3g_cell_no_ne_full['LAC']
+    df_eri_3g_cell_no_ne_full['MSS-LAI'] = df_eri_3g_cell_no_ne_full['MSS'] + '-' + \
+                                            df_eri_3g_cell_no_ne_full['LAI']
+
+    # Create a dictionary to map MSS-LAI to RNC & mapping on key=MSS-LAI
+    my_dict = dict(zip(df_eri_lai_x_rnc_summ['MSS-LAI'], df_eri_lai_x_rnc_summ['RNC']))         # Create a dictionary to map MSS-LAI to RNC
+    df_eri_3g_cell_no_ne_full['NE'] = df_eri_3g_cell_no_ne_full['MSS-LAI'].map(my_dict)         # Create a new column NE (RNC) for mapping on key=MSS-LAI
+    df_eri_3g_cell_no_ne_summ['NE'] = df_eri_3g_cell_no_ne_summ['MSS-LAI'].map(my_dict)         # Create a new column NE (RNC) for mapping on key=MSS-LAI
+    df_eri_3g_cell_full = df_eri_3g_cell_no_ne_full                                    
+    df_eri_3g_cell_summ = df_eri_3g_cell_no_ne_summ
+    nok_drop_col = ['LAI', 'MSS-LAI']                                                           # Define columns to drop 
+    df_eri_3g_cell_summ = df_eri_3g_cell_summ.drop(columns=nok_drop_col)                        # Drop columns
+    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']      # Define the column's order
+    df_eri_3g_cell_summ = df_eri_3g_cell_summ[nok_col_summ]                                     # Order the collumns
+
+    return df_eri_3g_cell_full, df_eri_3g_cell_summ
 
 
 ###############################################################################################################################################
