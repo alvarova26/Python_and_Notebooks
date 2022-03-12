@@ -1171,6 +1171,154 @@ def get_lai_x_rnc_nok(log_file_path):
 
     return df_nok_lai_x_rnc_full, df_nok_lai_x_rnc_summ
 
+def get_3g_cell_no_lai_nok(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all the 3G cells of NOKIA's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full 3G cells of NOKIA's MSSs information
+        + df_summ       => DataFrame with summarized 3G cells of NOKIA's MSSs information
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init NOKIA Variables
+    nok_sa_mss_name = '0'
+    nok_sa_mss_date = '0'
+    nok_sa_mss_time = '0'
+    nok_sa_name = '0'
+    nok_sa_no = '0'
+    nok_sa_lac_name = '0'
+    nok_sa_lac_no = '0'
+    nok_sa_mcc = '0'
+    nok_sa_mnc = '0'
+    nok_sa_ci = '0'
+    nok_sa_stat = '0'
+    nok_sa_rz = '0'
+    nok_sa_cdr = '0'
+
+    nok_mss_pars = [nok_sa_mss_name, nok_sa_mss_date, nok_sa_mss_time]
+    nok_sa_pars = [nok_sa_name, nok_sa_no, nok_sa_lac_name, nok_sa_lac_no, nok_sa_mcc, nok_sa_mnc,
+                    nok_sa_ci, nok_sa_stat, nok_sa_rz, nok_sa_cdr]
+
+    nok_sa_idx = 0
+    nok_sa_pos = 0
+    nok_sa_count = 0
+
+    # Open & Load NOKIA logfile
+    nok_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the NOKIA pd.DataFrame
+
+    nok_col_names = ['MSS','Date','Time','Name','Number','LAC_Name', 'LAC','MCC','MNC','CI','Status','RZ', 'CDR']
+    df_nok_3g_cell_no_lai_full = pd.DataFrame(columns=nok_col_names)
+    df_nok_3g_cell_no_lai_full.loc[0] = [nok_sa_mss_name, nok_sa_mss_date, nok_sa_mss_time, nok_sa_name, nok_sa_no,
+                                            nok_sa_lac_name, nok_sa_lac_no, nok_sa_mcc, nok_sa_mnc, nok_sa_ci,
+                                            nok_sa_stat, nok_sa_rz, nok_sa_cdr]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (nok_sa_idx < len(nok_logfile)-1):
+        nok_sa_idx, nok_sa_pos, nok_mss_pars = get_mss_pars(nok_logfile, nok_sa_idx,'ZEPO:TYPE=SA;')
+        while (nok_sa_idx < len(nok_logfile)-1) and (not nok_sa_pos == 999):
+            nok_sa_idx, nok_sa_pos, nok_sa_pars = get_zepo_3g_sa_pars(nok_logfile, nok_sa_idx)
+            if (nok_sa_pos >= 0) and (not nok_sa_pos == 999):
+                new_SA = nok_mss_pars + nok_sa_pars
+                df_nok_3g_cell_no_lai_full.loc[nok_sa_count] = new_SA
+                nok_sa_count += 1
+        nok_sa_idx += 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_nok_3g_cell_no_lai_summ = df_nok_3g_cell_no_lai_full
+    df_nok_3g_cell_no_lai_summ['CGI'] =  df_nok_3g_cell_no_lai_summ['MCC'] + '-' + \
+                                            df_nok_3g_cell_no_lai_summ['MNC'] + '-' + \
+                                            df_nok_3g_cell_no_lai_summ['LAC'] + '-' + \
+                                            df_nok_3g_cell_no_lai_summ['CI']
+
+    nok_drop_col = ['Number', 'LAC_Name', 'Status', 'RZ', 'CDR']
+    df_nok_3g_cell_no_lai_summ = df_nok_3g_cell_no_lai_summ.drop(columns=nok_drop_col)
+    df_nok_3g_cell_no_lai_summ['MSS'] = df_nok_3g_cell_no_lai_summ['MSS'].str.replace(r'0', '')
+    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
+    df_nok_3g_cell_no_lai_summ = df_nok_3g_cell_no_lai_summ[nok_col_summ]
+    
+    return df_nok_3g_cell_no_lai_full, df_nok_3g_cell_no_lai_summ
+
+def get_3g_cell_no_lai_eri(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all the 3G cells of ERICSSON's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full 3G cells of ERICSSON's MSSs information
+        + df_summ       => DataFrame with summarized 2G cells of ERICSSON's MSSs information
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init ERICSSON Variables
+    eri_area_mss_name = '0'
+    eri_area_mss_date = '0'
+    eri_area_mss_time = '0'
+    eri_area_name = '0'
+    eri_area_cgi = '0'
+    eri_area_mcc = '0'
+    eri_area_mnc = '0'
+    eri_area_lac = '0'
+    eri_area_ci = '0'
+    eri_area_ro = '0'
+    eri_area_co = '0'
+    eri_area_ea = '0'
+
+    eri_mss_pars = [eri_area_mss_name, eri_area_mss_date, eri_area_mss_time]
+    eri_area_pars = [eri_area_name, eri_area_cgi, eri_area_mcc, eri_area_mnc,
+                        eri_area_lac, eri_area_ci, eri_area_ro, eri_area_co, eri_area_ea]
+
+    eri_area_idx = 0
+    eri_area_pos = 0
+    eri_area_count = 0
+
+    # Open & Load ERICSSON logfile
+    eri_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the ERICSSON pd.DataFrame
+    eri_col_names = ['MSS','Date','Time','Name','CGI','MCC','MNC','LAC','CI','RO','CO','EA']
+    df_eri_3g_cell_no_lai_full = pd.DataFrame(columns=eri_col_names)
+    df_eri_3g_cell_no_lai_full.loc[0] = [eri_area_mss_name, eri_area_mss_date, eri_area_mss_time,
+                                            eri_area_name, eri_area_cgi, eri_area_mcc, eri_area_mnc,
+                                            eri_area_lac, eri_area_ci, eri_area_ro, eri_area_co, eri_area_ea]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (eri_area_idx < len(eri_logfile)-1):
+        eri_area_idx, eri_area_pos, eri_mss_pars = get_mss_pars(eri_logfile, eri_area_idx,'eaw')
+        if (eri_area_pos >= 0) and (not eri_area_pos == 999) and (not eri_area_pos == 998):
+            eri_area_idx, eri_area_pos, eri_area_pars = get_mgaap_area_pars(eri_logfile, eri_area_idx)
+            while(eri_area_pos >= 0) and (not eri_area_pos == 999) and (not eri_area_pos == 998):
+                eri_area_idx, eri_area_pos, eri_area_pars = get_mgaap_area_pars(eri_logfile, eri_area_idx)
+                if(eri_area_pos >= 0) and (not eri_area_pos == 999) and (not eri_area_pos == 998):
+                    new_area = eri_mss_pars + eri_area_pars
+                    df_eri_3g_cell_no_lai_full.loc[eri_area_count] = new_area
+                    eri_area_count += 1
+                eri_area_idx += 1
+        eri_area_idx += 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_eri_3g_cell_no_lai_summ = df_eri_3g_cell_no_lai_full
+    eri_drop_col = ['CO', 'RO', 'EA']
+    df_eri_3g_cell_no_lai_summ = df_eri_3g_cell_no_lai_summ.drop(columns=eri_drop_col)
+    eri_col_summ = ['MSS', 'Date', 'Time', 'Name', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
+    df_eri_3g_cell_no_lai_summ = df_eri_3g_cell_no_lai_summ[eri_col_summ]
+
+    return df_eri_3g_cell_no_lai_full, df_eri_3g_cell_no_lai_summ
 
 
 ###############################################################################################################################################
