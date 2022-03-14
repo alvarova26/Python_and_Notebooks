@@ -859,6 +859,7 @@ def get_mgaap_area_pars(file, start_idx):
 ########################################     MAIN Functions     ###############################################################################
 ###############################################################################################################################################
 
+###############################################################################################################################################
 def get_2g_cell_nok(log_file_path):
     '''
     Function:   
@@ -945,6 +946,7 @@ def get_2g_cell_nok(log_file_path):
 
     return df_nok_2g_cell_full, df_nok_2g_cell_summ
 
+###############################################################################################################################################
 def get_2g_cell_eri(log_file_path):
     '''
     Function:   
@@ -1024,6 +1026,7 @@ def get_2g_cell_eri(log_file_path):
 
     return df_eri_2g_cell_full, df_eri_2g_cell_summ
 
+###############################################################################################################################################
 def get_lai_x_rnc_nok(log_file_path):
     '''
     Function:   
@@ -1120,6 +1123,7 @@ def get_lai_x_rnc_nok(log_file_path):
 
     return df_nok_lai_x_rnc_full, df_nok_lai_x_rnc_summ
 
+###############################################################################################################################################
 def get_lai_x_rnc_eri(log_file_path):
     '''
     Function:   
@@ -1204,6 +1208,7 @@ def get_lai_x_rnc_eri(log_file_path):
 
     return df_eri_lai_x_rnc_full, df_eri_lai_x_rnc_summ
 
+###############################################################################################################################################
 def get_3g_cell_no_ne_nok(log_file_path):
     '''
     Function:   
@@ -1285,6 +1290,7 @@ def get_3g_cell_no_ne_nok(log_file_path):
     
     return df_nok_3g_cell_no_ne_full, df_nok_3g_cell_no_ne_summ
 
+###############################################################################################################################################
 def get_3g_cell_no_ne_eri(log_file_path):
     '''
     Function:   
@@ -1463,6 +1469,7 @@ def get_3g_cell_no_ne_eri(log_file_path):
 
     return df_nok_3g_cell_full, df_nok_3g_cell_summ
 
+###############################################################################################################################################
 def get_3g_cell_nok(log_file_3g_cell_path, log_file_lai_x_rnc_mapp_path):
     '''
     Function:   
@@ -1511,6 +1518,7 @@ def get_3g_cell_nok(log_file_3g_cell_path, log_file_lai_x_rnc_mapp_path):
 
     return df_nok_3g_cell_full, df_nok_3g_cell_summ
 
+###############################################################################################################################################
 def get_3g_cell_eri(log_file_3g_cell_path, log_file_lai_x_rnc_mapp_path):
     '''
     Function:   
@@ -1559,11 +1567,173 @@ def get_3g_cell_eri(log_file_3g_cell_path, log_file_lai_x_rnc_mapp_path):
 
     return df_eri_3g_cell_full, df_eri_3g_cell_summ
 
+###############################################################################################################################################
+def get_def_lai_nok(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all defined LAIs of NOKIA's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full defined LAIs of NOKIA's MSSs
+        + df_summ       => DataFrame with summarized defined LAIS of NOKIA's MSSs
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init NOKIA Variables
+    nok_lai_def_mss_name = '0'
+    nok_lai_def_mss_date = '0'
+    nok_lai_def_mss_time = '0'
+    nok_lai_def_mcc = '0'
+    nok_lai_def_mnc = '0'
+    nok_lai_def_no = '0'
+    nok_lai_def_name = '0'
+    nok_lai_def_at = '0'
+    nok_lai_def_repag = '0'
+    nok_lai_def_rngp = '0'
+    nok_lai_def_mnc_al = '0'
+    nok_lai_def_dsav = '0'
+    nok_lai_def_tz = '0'
+    nok_lai_def_honla = '0'
+
+    nok_mss_pars = [nok_lai_def_mss_name, nok_lai_def_mss_date, nok_lai_def_mss_time]
+    nok_lai_def_pars = [nok_lai_def_mcc, nok_lai_def_mnc, nok_lai_def_no, nok_lai_def_name, nok_lai_def_at,
+                        nok_lai_def_repag, nok_lai_def_rngp, nok_lai_def_mnc_al, nok_lai_def_dsav,
+                        nok_lai_def_tz, nok_lai_def_honla]
+
+    nok_lai_def_idx = 0
+    nok_lai_def_pos = 0
+    nok_lai_def_count = 0
+
+    # Open & Load NOKIA logfile
+    nok_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the NOKIA pd.DataFrame
+    nok_col_names = ['MSS','Date','Time','MCC','MNC','LAC','LAC_NAME','AT','INT','RNGP','MNC_AL','DSAV','TZ','HONLA']
+    df_nok_lai_def_mss_full = pd.DataFrame(columns=nok_col_names)
+    df_nok_lai_def_mss_full.loc[0] = [nok_lai_def_mss_name, nok_lai_def_mss_date, nok_lai_def_mss_time, nok_lai_def_mcc,
+                                        nok_lai_def_mnc, nok_lai_def_no, nok_lai_def_name, nok_lai_def_at,
+                                        nok_lai_def_repag, nok_lai_def_rngp, nok_lai_def_mnc_al, nok_lai_def_dsav,
+                                        nok_lai_def_tz, nok_lai_def_honla]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (nok_lai_def_idx < len(nok_logfile)-1):
+        nok_lai_def_idx, nok_lai_def_pos, nok_mss_pars = get_mss_pars(nok_logfile, nok_lai_def_idx,'ZELO;')
+        while (nok_lai_def_idx < len(nok_logfile)-1) and (not nok_lai_def_pos == 999):
+            nok_lai_def_idx, nok_lai_def_pos, nok_lai_def_pars = get_zelo_lac_pars(nok_logfile,nok_lai_def_idx)
+            if nok_lai_def_pos == 999:                              # if 'COMMAND EXECUTED'
+                nok_lai_def_idx += 1                                # Increase index to read next line
+            else:
+                new_lai = nok_mss_pars + nok_lai_def_pars
+                df_nok_lai_def_mss_full.loc[nok_lai_def_count] = new_lai
+                nok_lai_def_count += 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_nok_lai_def_mss_full['LAC'] =  df_nok_lai_def_mss_full['LAC'].astype(int)
+    df_nok_lai_def_mss_full['LAC'] =  df_nok_lai_def_mss_full['LAC'].astype(str)
+    df_nok_lai_def_mss_full['MSS'] = df_nok_lai_def_mss_full['MSS'].str.replace(r'0', '')
+    df_nok_lai_def_mss_summ = df_nok_lai_def_mss_full
+    nok_drop_col = ['AT','INT','RNGP','MNC_AL','DSAV','TZ','HONLA']
+    df_nok_lai_def_mss_summ = df_nok_lai_def_mss_summ.drop(columns=nok_drop_col)
+    df_nok_lai_def_mss_full['LAI'] =  df_nok_lai_def_mss_full['MCC'] + '-' + \
+                                        df_nok_lai_def_mss_full['MNC'] + '-' + \
+                                        df_nok_lai_def_mss_full['LAC']
+    df_nok_lai_def_mss_full['MSS-LAI'] = df_nok_lai_def_mss_full['MSS'] + '-' + \
+                                            df_nok_lai_def_mss_full['LAI']
+    df_nok_lai_def_mss_summ['LAI'] =  df_nok_lai_def_mss_summ['MCC'] + '-' + \
+                                        df_nok_lai_def_mss_summ['MNC'] + '-' + \
+                                        df_nok_lai_def_mss_summ['LAC']
+    df_nok_lai_def_mss_summ['MSS-LAI'] = df_nok_lai_def_mss_summ['MSS'] + '-' + \
+                                            df_nok_lai_def_mss_summ['LAI']
+    nok_col_summ = ['MSS','Date','Time','MCC','MNC','LAC','LAI','MSS-LAI']
+    df_nok_lai_def_mss_summ = df_nok_lai_def_mss_summ[nok_col_summ]
+
+    return df_nok_lai_def_mss_full, df_nok_lai_def_mss_summ
+
+###############################################################################################################################################
+def get_def_lai_eri(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all defined LAIs of ERICSSON's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full defined LAIs of ERICSSON's MSSs
+        + df_summ       => DataFrame with summarized defined LAIs of ERICSSON's MSSs
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init ERICSSON Variables
+    eri_lai_def_mss_name = '0'
+    eri_lai_def_mss_date = '0'
+    eri_lai_def_mss_time = '0'
+    eri_lai_def_mcc = '0'
+    eri_lai_def_mnc = '0'
+    eri_lai_def_no = '0'
+    eri_lai_def = '0'
+    eri_lai_pfc = '0'
+    eri_lai_prl = '0'
+    eri_lai_pool = '0'
+
+    eri_mss_pars = [eri_lai_def_mss_name, eri_lai_def_mss_date, eri_lai_def_mss_time]
+    eri_lai_def_pars = [eri_lai_def_mcc, eri_lai_def_mnc, eri_lai_def_no, eri_lai_def, eri_lai_pfc , eri_lai_prl, eri_lai_pool]
+
+    eri_lai_def_idx = 0
+    eri_lai_def_pos = 0
+    eri_lai_def_count = 0
+
+    # Open & Load ERICSSON logfile
+    eri_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the ERICSSON pd.DataFrame
+    eri_col_names = ['MSS','Date','Time','MCC','MNC','LAC','LAI','PFC','PRL','POOL']
+    df_eri_lai_def_mss_full = pd.DataFrame(columns=eri_col_names)
+    df_eri_lai_def_mss_full.loc[0] = [eri_lai_def_mss_name, eri_lai_def_mss_date, eri_lai_def_mss_time, eri_lai_def_mcc,
+                                        eri_lai_def_mnc, eri_lai_def_no, eri_lai_def, eri_lai_pfc , eri_lai_prl, eri_lai_pool]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (eri_lai_def_idx < len(eri_logfile)-1):
+        eri_lai_def_idx, eri_lai_def_pos, eri_mss_pars = get_mss_pars(eri_logfile, eri_lai_def_idx,'eaw')
+        if (eri_lai_def_pos >= 0) and (not eri_lai_def_pos == 999) and (not eri_lai_def_pos == 998):
+            eri_lai_def_idx, eri_lai_def_pos, eri_lai_def_pars = get_mglap_lac_pars(eri_logfile, eri_lai_def_idx)
+            while(eri_lai_def_pos >= 0) and (not eri_lai_def_pos == 999) and (not eri_lai_def_pos == 998):
+                RI_index, eri_lai_def_pos, eri_lai_def_pars = get_mglap_lac_pars(eri_logfile, eri_lai_def_idx)
+                if(eri_lai_def_pos >= 0) and (not eri_lai_def_pos == 999) and (not eri_lai_def_pos == 998):
+                    new_lai = eri_mss_pars + eri_lai_def_pars
+                    df_eri_lai_def_mss_full.loc[eri_lai_def_count] = new_lai
+                    eri_lai_def_count += 1
+                eri_lai_def_idx += 1
+        eri_lai_def_idx += 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_eri_lai_def_mss_summ = df_eri_lai_def_mss_full
+    eri_drop_col = ['PFC','PRL','POOL']
+    df_eri_lai_def_mss_summ = df_eri_lai_def_mss_summ.drop(columns=eri_drop_col)
+    df_eri_lai_def_mss_full['MSS-LAI'] = df_eri_lai_def_mss_full['MSS'] + '-' + \
+                                            df_eri_lai_def_mss_full['LAI']
+    df_eri_lai_def_mss_summ['MSS-LAI'] = df_eri_lai_def_mss_summ['MSS'] + '-' + \
+                                            df_eri_lai_def_mss_summ['LAI']
+    eri_col_summ = ['MSS','Date','Time','MCC','MNC','LAC','LAI','MSS-LAI']
+    df_eri_lai_def_mss_summ = df_eri_lai_def_mss_summ[eri_col_summ]
+
+    return df_eri_lai_def_mss_full, df_eri_lai_def_mss_summ
+
 
 ###############################################################################################################################################
 #################################     Command Generation Functions     ########################################################################
 ###############################################################################################################################################
 
+###############################################################################################################################################
 def change_lai_2g_eri(my_df, my_cmd='change'):
     '''
     Function:   
@@ -1680,6 +1850,7 @@ def change_lai_2g_eri(my_df, my_cmd='change'):
     
     return True
 
+###############################################################################################################################################
 def change_lai_3g_eri(my_df, my_cmd='change'):
     '''
     Function:   
@@ -1806,6 +1977,7 @@ def change_lai_3g_eri(my_df, my_cmd='change'):
     
     return True
 
+###############################################################################################################################################
 def change_lai_2g_nok(my_df, my_cmd='change'):
     '''
     Function:   
@@ -1852,11 +2024,11 @@ def change_lai_2g_nok(my_df, my_cmd='change'):
             for t in range(idx-count+1,idx+1):
                 cell_name = my_df['CELL_NAME'][t]
                 bsc_name = my_df['NE'][t]
-                #mcc_lai = my_df['MCC'][t]
-                #mnc_lai = my_df['MNC'][t]
+                mcc_lai = my_df['MCC'][t]
+                mnc_lai = my_df['MNC'][t]
                 new_lai = my_df['New LAC'][t]
-                print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':LANAME=LAC' + new_lai + ';')
-                #print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':MCC=' + mcc_lai + ',MNC=' + mnc_lai + ',LAC=' + new_lai + ';')
+                #print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':LANAME=LAC' + new_lai + ';')
+                print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':MCC=' + mcc_lai + ',MNC=' + mnc_lai + ',LAC=' + new_lai + ';')
 
             for t in range(idx-count+1,idx+1):
                 cell_name = my_df['CELL_NAME'][t]
@@ -1890,11 +2062,11 @@ def change_lai_2g_nok(my_df, my_cmd='change'):
             for t in range(idx-count+1,idx+1):
                 cell_name = my_df['CELL_NAME'][t]
                 bsc_name = my_df['NE'][t]
-                #mcc_lai = my_df['MCC'][t]
-                #mnc_lai = my_df['MNC'][t]
+                mcc_lai = my_df['MCC'][t]
+                mnc_lai = my_df['MNC'][t]
                 old_lai = my_df['LAC'][t]
-                print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':LANAME=LAC' + old_lai + ';')
-                #print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':MCC=' + mcc_lai + ',MNC=' + mnc_lai + ',LAC=' + old_lai + ';')
+                #print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':LANAME=LAC' + old_lai + ';')
+                print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':MCC=' + mcc_lai + ',MNC=' + mnc_lai + ',LAC=' + old_lai + ';')
 
             for t in range(idx-count+1,idx+1):
                 cell_name = my_df['CELL_NAME'][t]
@@ -1902,6 +2074,7 @@ def change_lai_2g_nok(my_df, my_cmd='change'):
 
     return True
 
+###############################################################################################################################################
 def change_lai_3g_nok(my_df, my_cmd='change'):
     '''
     Function:   
