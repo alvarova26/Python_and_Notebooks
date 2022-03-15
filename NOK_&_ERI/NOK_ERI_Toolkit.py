@@ -1728,6 +1728,164 @@ def get_def_lai_eri(log_file_path):
 
     return df_eri_lai_def_mss_full, df_eri_lai_def_mss_summ
 
+###############################################################################################################################################
+def get_r30k_lai_nok(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all R30k LAIs of NOKIA's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full R30k LAIs of NOKIA's MSSs
+        + df_summ       => DataFrame with summarized R30k LAIS of NOKIA's MSSs
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init NOKIA Variables
+    nok_lai_r30k_mss_name = '0'
+    nok_lai_r30k_mss_date = '0'
+    nok_lai_r30k_mss_time = '0'
+    nok_lai_r30k_no = '0'
+    nok_lai_r30k_name = '0'
+    nok_lai_r30k_zc0 = '0'
+    nok_lai_r30k_zc1 = '0'
+    nok_lai_r30k_zc2 = '0'
+    nok_lai_r30k_zc3 = '0'
+    nok_lai_r30k_zc4 = '0'
+    nok_lai_r30k_zc5 = '0'
+
+    nok_mss_pars = [nok_lai_r30k_mss_name, nok_lai_r30k_mss_date, nok_lai_r30k_mss_time]
+    nok_lai_r30k_pars = [nok_lai_r30k_no, nok_lai_r30k_name, nok_lai_r30k_zc0, nok_lai_r30k_zc1, nok_lai_r30k_zc2, nok_lai_r30k_zc3,
+                        nok_lai_r30k_zc4, nok_lai_r30k_zc5]
+
+    nok_lai_r30k_idx = 0
+    nok_lai_r30k_pos = 0
+    nok_lai_r30k_count = 0
+
+    # Open & Load NOKIA logfile
+    nok_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the NOKIA pd.DataFrame
+    nok_col_names = ['MSS','Date','Time', 'LAC','LAC_NAME', 'Claro_Roam', 'Vivo_Roam', 'Oi_Roam', 'Tim_Roam', 'CTBC_Roam', 'Next_Roam']
+    df_nok_lai_r30k_mss_full = pd.DataFrame(columns=nok_col_names)
+    df_nok_lai_r30k_mss_full.loc[0] = [nok_lai_r30k_mss_name, nok_lai_r30k_mss_date, nok_lai_r30k_mss_time, nok_lai_r30k_no, 
+                                        nok_lai_r30k_name, nok_lai_r30k_zc0, nok_lai_r30k_zc1, nok_lai_r30k_zc2, nok_lai_r30k_zc3,
+                                        nok_lai_r30k_zc4, nok_lai_r30k_zc5]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (nok_lai_r30k_idx < len(nok_logfile)-1):
+        nok_lai_r30k_idx, nok_lai_r30k_pos, nok_mss_pars = get_mss_pars(nok_logfile, nok_lai_r30k_idx, 'ZEKO:LAC')
+        while (nok_lai_r30k_idx < len(nok_logfile)-1) and (not nok_lai_r30k_pos == 999):
+            nok_lai_r30k_idx, nok_lai_r30k_pos, nok_lai_r30k_pars = get_zeko_lac_pars(nok_logfile, nok_lai_r30k_idx)
+            if nok_lai_r30k_pos == 999:                                 # if 'COMMAND EXECUTED'
+                nok_lai_r30k_idx = nok_lai_r30k_idx + 1                 # Increase index to read next line
+            else:
+                new_lai = nok_mss_pars + nok_lai_r30k_pars
+                df_nok_lai_r30k_mss_full.loc[nok_lai_r30k_count] = new_lai
+                nok_lai_r30k_count = nok_lai_r30k_count + 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_nok_lai_r30k_mss_full['MCC'] =  '724'
+    df_nok_lai_r30k_mss_full['MNC'] =  '05'
+    df_nok_lai_r30k_mss_full['LAC'] =  df_nok_lai_r30k_mss_full['LAC'].astype(int)
+    df_nok_lai_r30k_mss_full['LAC'] =  df_nok_lai_r30k_mss_full['LAC'].astype(str)
+    df_nok_lai_r30k_mss_full['MSS'] = df_nok_lai_r30k_mss_full['MSS'].str.replace(r'0', '')
+    df_nok_lai_r30k_mss_full.loc[df_nok_lai_r30k_mss_full.LAC_NAME.str.contains('RS'), 'MNC'] = '28'    # Looks up for RS and replace MNC by 28
+    df_nok_lai_r30k_mss_full.loc[df_nok_lai_r30k_mss_full.LAC_NAME.str.contains('FAKE'), 'MNC'] = '11'  # Looks up for FAKE and replace MNC by 11
+    df_nok_lai_r30k_mss_full['LAI'] = df_nok_lai_r30k_mss_full['MCC'] + '-' + \
+                                        df_nok_lai_r30k_mss_full['MNC'] + '-' + \
+                                        df_nok_lai_r30k_mss_full['LAC']
+    df_nok_lai_r30k_mss_full['MSS-LAI'] = df_nok_lai_r30k_mss_full['MSS'] + '-' + \
+                                            df_nok_lai_r30k_mss_full['LAI']
+    df_nok_lai_r30k_mss_summ = df_nok_lai_r30k_mss_full
+    nok_drop_col = ['LAC_NAME']
+    df_nok_lai_r30k_mss_summ = df_nok_lai_r30k_mss_summ.drop(columns=nok_drop_col)
+    nok_col_summ = ['MSS','Date','Time', 'LAC', 'Claro_Roam', 'Vivo_Roam', 'Oi_Roam', 'Tim_Roam', 'CTBC_Roam', 'Next_Roam','LAI','MSS-LAI']
+    df_nok_lai_r30k_mss_summ = df_nok_lai_r30k_mss_summ[nok_col_summ]
+
+    return df_nok_lai_r30k_mss_full, df_nok_lai_r30k_mss_summ
+
+###############################################################################################################################################
+def get_r30k_lai_eri(log_file_path):
+    '''
+    Function:   
+        + Process a log_file with all R30k LAIs of ERICSSON's MSSs
+    Arguments:      
+        + log_file_path => path to the log_file
+    Output:     
+        + df_full       => DataFrame with full R30k LAIs of ERICSSON's MSSs
+        + df_summ       => DataFrame with summarized R30k LAIs of ERICSSON's MSSs
+    '''
+    
+    # Variable control
+    assert isinstance(log_file_path, str),'Path to look for the file must be string'
+    assert len(log_file_path) > 0, 'File is empty'
+
+    ###################################################### Code
+
+    # Init ERICSSON Variables
+    eri_lai_r30k_mss_name = '0'
+    eri_lai_r30k_mss_date = '0'
+    eri_lai_r30k_mss_time = '0'
+    eri_lai_r30k_no = '0'
+    eri_lai_r30k_name = '0'
+    eri_lai_r30k_zc0 = '0'
+    eri_lai_r30k_zc1 = '0'
+    eri_lai_r30k_zc2 = '0'
+    eri_lai_r30k_zc3 = '0'
+    eri_lai_r30k_zc4 = '0'
+    eri_lai_r30k_zc5 = '0'
+
+    eri_mss_pars = [eri_lai_r30k_mss_name, eri_lai_r30k_mss_date, eri_lai_r30k_mss_time]
+    eri_lai_r30k_pars = [eri_lai_r30k_no, eri_lai_r30k_name, eri_lai_r30k_zc0, eri_lai_r30k_zc1, eri_lai_r30k_zc2 , eri_lai_r30k_zc3,
+                            eri_lai_r30k_zc4, eri_lai_r30k_zc5]
+
+    eri_lai_r30k_idx = 0
+    eri_lai_r30k_pos = 0
+    eri_lai_r30k_count = 0
+
+    # Open & Load ERICSSON logfile
+    eri_logfile = open_file(log_file_path)
+
+    # Create & Init & Set the ERICSSON pd.DataFrame
+    eri_col_names = ['MSS','Date','Time', 'LAC_NO', 'LAC_NAME', 'Claro_Roam', 'Vivo_Roam', 'Oi_Roam', 'Tim_Roam', 'CTBC_Roam', 'Next_Roam']
+    df_eri_lai_r30k_mss_full = pd.DataFrame(columns=eri_col_names)
+    df_eri_lai_r30k_mss_full.loc[0] = [eri_lai_r30k_mss_name, eri_lai_r30k_mss_date, eri_lai_r30k_mss_time, eri_lai_r30k_no, eri_lai_r30k_name,
+                                        eri_lai_r30k_zc0, eri_lai_r30k_zc1, eri_lai_r30k_zc2 , eri_lai_r30k_zc3,
+                                        eri_lai_r30k_zc4, eri_lai_r30k_zc5]
+
+    # Run the main program (txt => pd.DataFrame)
+    while (eri_lai_r30k_idx < len(eri_logfile)-1):
+        eri_lai_r30k_idx, eri_lai_r30k_pos, eri_mss_pars = get_mss_pars(eri_logfile, eri_lai_r30k_idx,'eaw')
+        if (eri_lai_r30k_pos >= 0) and (not eri_lai_r30k_pos == 999) and (not eri_lai_r30k_pos == 998):
+            eri_lai_r30k_idx, eri_lai_r30k_pos, eri_lai_r30k_pars = get_mgnrp_lac_pars(eri_logfile, eri_lai_r30k_idx)
+            while(eri_lai_r30k_pos >= 0) and (not eri_lai_r30k_pos == 999) and (not eri_lai_r30k_pos == 998):
+                RI_index, eri_lai_r30k_pos, eri_lai_r30k_pars = get_mgnrp_lac_pars(eri_logfile, eri_lai_r30k_idx)
+                if(eri_lai_r30k_pos >= 0) and (not eri_lai_r30k_pos == 999) and (not eri_lai_r30k_pos == 998):
+                    new_lai = eri_mss_pars + eri_lai_r30k_pars
+                    df_eri_lai_r30k_mss_full.loc[eri_lai_r30k_count] = new_lai
+                    eri_lai_r30k_count += 1
+                eri_lai_r30k_idx += 1
+        eri_lai_r30k_idx += 1
+
+    # DataFrame => Drop some columns to get just the most important ones.
+    df_eri_lai_r30k_mss_full[['MCC','MNC','LAC']] =  df_eri_lai_r30k_mss_full['LAC_NAME'].str.split('-', 2, expand=True)
+    df_eri_lai_r30k_mss_full['LAI'] =  df_eri_lai_r30k_mss_full['LAC_NAME']
+    df_eri_lai_r30k_mss_full['MSS-LAI'] =  df_eri_lai_r30k_mss_full['MSS'] + '-' + \
+                                            df_eri_lai_r30k_mss_full['LAI']
+    df_eri_lai_r30k_mss_summ = df_eri_lai_r30k_mss_full
+    eri_drop_col = ['MCC','MNC','LAC_NAME']
+    df_eri_lai_r30k_mss_summ = df_eri_lai_r30k_mss_summ.drop(columns=eri_drop_col)
+    eri_col_summ = ['MSS', 'Date', 'Time', 'LAC', 'Claro_Roam', 'Vivo_Roam', 'Oi_Roam', 'Tim_Roam', 'CTBC_Roam', 'Next_Roam','LAI', 'MSS-LAI']
+    df_eri_lai_r30k_mss_summ = df_eri_lai_r30k_mss_summ[eri_col_summ]
+
+    return df_eri_lai_r30k_mss_full, df_eri_lai_r30k_mss_summ
+
 
 ###############################################################################################################################################
 #################################     Command Generation Functions     ########################################################################
