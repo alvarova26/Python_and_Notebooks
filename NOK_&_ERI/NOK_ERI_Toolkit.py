@@ -2327,3 +2327,98 @@ def change_lai_3g_nok(my_df, my_cmd='change'):
 
 
     return True
+
+###############################################################################################################################################
+def create_lai_nok(my_df, my_cmd='create'):
+    '''
+    Function:   
+        + Generates the commands to create LAIs in NOKIAS's MSSs
+    Arguments:      
+        + my_df         => DataFrame with the information needed for creating the LAIs
+    Output:     
+        + None          => None - just analyze and print the commands
+    '''
+
+    # Variable control
+    assert isinstance(my_df, pd.DataFrame),'Received argument must be a pd.DataFrame'
+    assert isinstance(my_cmd, str),'Received argument must be a pd.DataFrame'
+    assert len(my_df) > 0,'Received pd.DataFrame can not be empty'
+    assert len(my_cmd) > 0,'Command (change or fallback) can not be empty'
+
+    ###################################################### Code
+    if (my_cmd == 'create'):
+        mss0=my_df['MSS'][0]
+        print('\n! ' + mss0)
+        print('!--------------------------------------------------------------------------------------')
+        for lai in range(len(my_df)):
+            mss1=my_df['MSS'][lai]
+            if not (mss0==mss1):
+                print('\n! ' + mss1)
+                print('!--------------------------------------------------------------------------------------')
+                mss0=mss1
+
+            lai_mun = my_df['Municipio'][lai]
+            lai_ibge = my_df['IBGE'][lai]
+            lai_ne = my_df['NE'][lai]
+            lai_mcc = my_df['MCC'][lai]
+            lai_mnc = my_df['MNC'][lai]
+            lai_lac = my_df['LAC'][lai]
+            lai_rngp = my_df['RNGP'][lai]
+            lai_honla = my_df['HONLA'][lai]
+            lai_zc0 = my_df['Claro_Roam'][lai]
+            lai_zc1 = my_df['Vivo_Roam'][lai]
+            lai_zc2 = my_df['Oi_Roam'][lai]
+            lai_zc3 = my_df['Tim_Roam'][lai]
+            lai_zc4 = my_df['CTBC_Roam'][lai]
+            lai_zc5 = my_df['Next_Roam'][lai]
+            lai_lai = my_df['LAI'][lai]
+            if(lai_mnc=='05'): lai_name = 'LAC' + lai_lac
+            if(lai_mnc=='28'): lai_name = 'LAC' + lai_lac + 'RS'
+
+            print('\n!' + lai_mun +' | NE=' + lai_ne + ' | LAI=' + lai_lai)
+            print('!--------------------------------------------------------------------------------------')
+            print('ZELC:NAME=' + lai_name + ',MCC=' + lai_mcc + ',MNC=' + lai_mnc +',LAC=' + lai_lac + ';')
+            print('ZELE:NAME=' + lai_name + ':RNGP=' + lai_rngp + ',HONLA=' + lai_honla + ';')
+            print('ZELP:NAME=' + lai_name + ':AT=001,INT=00600;')
+            if (lai_zc0=='1'): print('ZEKA:ZC=0:LANAME=' + lai_name + ':Y;')
+            if (lai_zc1=='1'): print('ZEKA:ZC=1:LANAME=' + lai_name + ':Y;')
+            if (lai_zc2=='1'): print('ZEKA:ZC=2:LANAME=' + lai_name + ':Y;')
+            if (lai_zc3=='1'): print('ZEKA:ZC=3:LANAME=' + lai_name + ':Y;')
+            if (lai_zc4=='1'): print('ZEKA:ZC=4:LANAME=' + lai_name + ':Y;')
+            if (lai_zc5=='1'): print('ZEKA:ZC=5:LANAME=' + lai_name + ':Y;')
+
+    if (my_cmd == 'fallback'):
+        mss0=my_df['MSS'][0]
+        print('\n! ' + mss0)
+        print('!--------------------------------------------------------------------------------------')
+        for lai in range(len(my_df)):
+            mss1=my_df['MSS'][lai]
+            if not (mss0==mss1):
+                print('\n! ' + mss1)
+                print('!--------------------------------------------------------------------------------------')
+                mss0=mss1
+
+            lai_mun = my_df['Municipio'][lai]
+            lai_ibge = my_df['IBGE'][lai]
+            lai_ne = my_df['NE'][lai]
+            lai_mcc = my_df['MCC'][lai]
+            lai_mnc = my_df['MNC'][lai]
+            lai_lac = my_df['LAC'][lai]
+            lai_rngp = my_df['RNGP'][lai]
+            lai_honla = my_df['HONLA'][lai]
+            lai_zc0 = my_df['Claro_Roam'][lai]
+            lai_zc1 = my_df['Vivo_Roam'][lai]
+            lai_zc2 = my_df['Oi_Roam'][lai]
+            lai_zc3 = my_df['Tim_Roam'][lai]
+            lai_zc4 = my_df['CTBC_Roam'][lai]
+            lai_zc5 = my_df['Next_Roam'][lai]
+            lai_lai = my_df['LAI'][lai]
+            if(lai_mnc=='05'): lai_name = 'LAC' + lai_lac
+            if(lai_mnc=='28'): lai_name = 'LAC' + lai_lac + 'RS'
+
+            print('\n!' + lai_mun +' | NE=' + lai_ne + ' | LAI=' + lai_lai)
+            print('!--------------------------------------------------------------------------------------')
+            print('ZELD:NAME=' + lai_name + ',MCC=' + lai_mcc + ',MNC=' + lai_mnc +',LAC=' + lai_lac + ';')
+
+    return True
+
