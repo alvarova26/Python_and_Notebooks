@@ -2380,12 +2380,14 @@ def create_lai_nok(my_df, my_cmd='create'):
             print('ZELC:NAME=' + lai_name + ',MCC=' + lai_mcc + ',MNC=' + lai_mnc +',LAC=' + lai_lac + ';')
             print('ZELE:NAME=' + lai_name + ':RNGP=' + lai_rngp + ',HONLA=' + lai_honla + ';')
             print('ZELP:NAME=' + lai_name + ':AT=001,INT=00600;')
-            if (lai_zc0=='1'): print('ZEKA:ZC=0:LANAME=' + lai_name + ':Y;')
-            if (lai_zc1=='1'): print('ZEKA:ZC=1:LANAME=' + lai_name + ':Y;')
-            if (lai_zc2=='1'): print('ZEKA:ZC=2:LANAME=' + lai_name + ':Y;')
-            if (lai_zc3=='1'): print('ZEKA:ZC=3:LANAME=' + lai_name + ':Y;')
-            if (lai_zc4=='1'): print('ZEKA:ZC=4:LANAME=' + lai_name + ':Y;')
-            if (lai_zc5=='1'): print('ZEKA:ZC=5:LANAME=' + lai_name + ':Y;')
+            if (lai_zc0=='1'): print('ZEKA:ZC=0:LANAME=' + lai_name + ':Y;')    # Roaming for Claro
+            if (lai_zc1=='1'): print('ZEKA:ZC=1:LANAME=' + lai_name + ':Y;')    # Roaming for Vivo
+            if (lai_zc2=='1'): print('ZEKA:ZC=2:LANAME=' + lai_name + ':Y;')    # Roaming for Oi
+            if (lai_zc3=='1'): print('ZEKA:ZC=3:LANAME=' + lai_name + ':Y;')    # Roaming for Tim
+            if (lai_zc4=='1'): print('ZEKA:ZC=4:LANAME=' + lai_name + ':Y;')    # Roaming for CTBC
+            if (lai_zc5=='1'): print('ZEKA:ZC=5:LANAME=' + lai_name + ':Y;')    # Roaming for Nextel (not used)
+            if ('RNC' in lai_ne): 
+                print('ZE2M:RNCNAME=' + lai_ne + ':LAMCC=' + lai_mcc + ',LAMNC=' + lai_mnc + ',LACLA=' + lai_lac + ';')
 
     if (my_cmd == 'fallback'):
         mss0=my_df['MSS'][0]
@@ -2418,7 +2420,94 @@ def create_lai_nok(my_df, my_cmd='create'):
 
             print('\n!' + lai_mun +' | NE=' + lai_ne + ' | LAI=' + lai_lai)
             print('!--------------------------------------------------------------------------------------')
+            if ('RNC' in lai_ne): 
+                print('ZE2M:RNCNAME=' + lai_ne + ':LAMCC=' + lai_mcc + ',LAMNC=' + lai_mnc + ',LACLR=' + lai_lac + ';')
             print('ZELD:NAME=' + lai_name + ',MCC=' + lai_mcc + ',MNC=' + lai_mnc +',LAC=' + lai_lac + ';')
+
 
     return True
 
+###############################################################################################################################################
+def create_lai_eri(my_df, my_cmd='create'):
+    '''
+    Function:   
+        + Generates the commands to create LAIs in ERICSSON's MSSs
+    Arguments:      
+        + my_df         => DataFrame with the information needed for creating the LAIs
+    Output:     
+        + None          => None - just analyze and print the commands
+    '''
+
+    # Variable control
+    assert isinstance(my_df, pd.DataFrame),'Received argument must be a pd.DataFrame'
+    assert isinstance(my_cmd, str),'Received argument must be a pd.DataFrame'
+    assert len(my_df) > 0,'Received pd.DataFrame can not be empty'
+    assert len(my_cmd) > 0,'Command (change or fallback) can not be empty'
+
+    ###################################################### Code
+    if (my_cmd == 'create'):
+        mss0=my_df['MSS'][0]
+        print('\n! ' + mss0)
+        print('!--------------------------------------------------------------------------------------')
+        for lai in range(len(my_df)):
+            mss1=my_df['MSS'][lai]
+            if not (mss0==mss1):
+                print('\n! ' + mss1)
+                print('!--------------------------------------------------------------------------------------')
+                mss0=mss1
+
+            lai_mun = my_df['Municipio'][lai]
+            lai_ibge = my_df['IBGE'][lai]
+            lai_ne = my_df['NE'][lai]
+            lai_mcc = my_df['MCC'][lai]
+            lai_mnc = my_df['MNC'][lai]
+            lai_lac = my_df['LAC'][lai]
+            lai_zc0 = my_df['Claro_Roam'][lai]
+            lai_zc1 = my_df['Vivo_Roam'][lai]
+            lai_zc2 = my_df['Oi_Roam'][lai]
+            lai_zc3 = my_df['Tim_Roam'][lai]
+            lai_zc4 = my_df['CTBC_Roam'][lai]
+            lai_zc5 = my_df['Next_Roam'][lai]
+            lai_lai = my_df['LAI'][lai]
+            lai_cn = lai_lac[-2:]
+            lai_nrrg = '7&8&9&12&13'
+            if(lai_mnc=='05'): lai_name = 'LAC' + lai_lac
+            if(lai_mnc=='28'): lai_name = 'LAC' + lai_lac + 'RS'
+            if(lai_zc1=='0'): lai_nrrg = '6&' + lai_nrrg    # Roaming for Vivo
+            if(lai_zc2=='0'): lai_nrrg = '2&' + lai_nrrg    # Roaming for Oi
+            if(lai_zc3=='0'): lai_nrrg = '1&' + lai_nrrg    # Roaming for Tim
+            print('\n!' + lai_mun +' | NE=' + lai_ne + ' | LAI=' + lai_lai)
+            print('!--------------------------------------------------------------------------------------')
+            print('MGLAI:LAI=' + lai_lai + ';')
+            print('MGLXI:LATA=' + lai_cn + ',LAI=' + lai_lai + ';')
+            print('MGNRI:LAI=' + lai_lai + ',NRRG=' + lai_nrrg + ';')
+            if('RNC' in lai_ne): print('MGMAI:LAI=' + lai_lai + ',RNC=' + lai_ne + ';')
+    
+    if (my_cmd == 'fallback'):
+        mss0=my_df['MSS'][0]
+        print('\n! ' + mss0)
+        print('!--------------------------------------------------------------------------------------')
+        for lai in range(len(my_df)):
+            mss1=my_df['MSS'][lai]
+            if not (mss0==mss1):
+                print('\n! ' + mss1)
+                print('!--------------------------------------------------------------------------------------')
+                mss0=mss1
+
+            lai_mun = my_df['Municipio'][lai]
+            lai_ibge = my_df['IBGE'][lai]
+            lai_ne = my_df['NE'][lai]
+            lai_mcc = my_df['MCC'][lai]
+            lai_mnc = my_df['MNC'][lai]
+            lai_lac = my_df['LAC'][lai]
+            lai_lai = my_df['LAI'][lai]
+            lai_cn = lai_lac[-2:]
+            if(lai_mnc=='05'): lai_name = 'LAC' + lai_lac
+            if(lai_mnc=='28'): lai_name = 'LAC' + lai_lac + 'RS'
+            print('\n!' + lai_mun +' | NE=' + lai_ne + ' | LAI=' + lai_lai)
+            print('!--------------------------------------------------------------------------------------')
+            if('RNC' in lai_ne): print('MGMAE:LAI=' + lai_lai + ',RNC=' + lai_ne + ';')
+            print('MGLXE:LATA=' + lai_cn + ',LAI=' + lai_lai + ';')
+            print('MGLAE:LAI=' + lai_lai + ';')
+    
+    return True
