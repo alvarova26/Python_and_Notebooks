@@ -11,6 +11,7 @@ from yahooquery import Ticker
 import requests
 from urllib.request import urlopen
 import json
+from datetime import datetime
 
 
 ###############################################################################################################################################
@@ -906,7 +907,7 @@ def get_2g_cell_nok(log_file_path):
     nok_logfile = open_file(log_file_path)
 
     # Create & Init & Set the NOKIA pd.DataFrame
-    nok_col_names = ['MSS','Date','Time','Name','Number','NE','NE_No','LAC_Name','MCC','MNC','LAC','CI','Status','RZ', 'CDR']
+    nok_col_names = ['MSS','Date','Time','CELL_NAME','CELL_NO','NE','NE_No','LAC_Name','MCC','MNC','LAC','CI','Status','RZ', 'CDR']
     df_nok_2g_cell_full = pd.DataFrame(columns=nok_col_names)
     df_nok_2g_cell_full.loc[0] = [nok_cell_mss_name, nok_cell_mss_date, nok_cell_mss_time, nok_cell_name, nok_cell_no, 
                                     nok_cell_bsc_name, nok_cell_bsc_no, nok_cell_lac_name, nok_cell_lac_no, nok_cell_mcc,
@@ -939,9 +940,9 @@ def get_2g_cell_nok(log_file_path):
                                     df_nok_2g_cell_summ['MNC'] + '-' + \
                                     df_nok_2g_cell_summ['LAC'] + '-' + \
                                     df_nok_2g_cell_summ['CI']
-    nok_drop_col = ['Number', 'NE_No', 'LAC_Name', 'Status', 'RZ', 'CDR']
+    nok_drop_col = ['Date', 'Time', 'NE_No', 'LAC_Name', 'Status', 'RZ', 'CDR']
     df_nok_2g_cell_summ = df_nok_2g_cell_summ.drop(columns=nok_drop_col)
-    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
+    nok_col_summ = ['MSS', 'NE', 'CELL_NAME', 'CELL_NO', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
     df_nok_2g_cell_summ = df_nok_2g_cell_summ[nok_col_summ]
 
     return df_nok_2g_cell_full, df_nok_2g_cell_summ
@@ -992,7 +993,7 @@ def get_2g_cell_eri(log_file_path):
     eri_logfile = open_file(log_file_path)
 
     # Create & Init & Set the ERICSSON pd.DataFrame
-    eri_col_names = ['MSS','Date','Time','Name','CGI','MCC','MNC','LAC','CI','NE','CO','RO','NCS','EA']
+    eri_col_names = ['MSS','Date','Time','CELL_NAME','CGI','MCC','MNC','LAC','CI','NE','CO','RO','NCS','EA']
     df_eri_2g_cell_full = pd.DataFrame(columns=eri_col_names)
     df_eri_2g_cell_full.loc[0] = [eri_cell_mss_name, eri_cell_mss_date, eri_cell_mss_time, eri_cell_name, eri_cell_cgi,
                                     eri_cell_mcc, eri_cell_mnc, eri_cell_lac, eri_cell_ci, eri_cell_bsc, eri_cell_co,
@@ -1013,15 +1014,18 @@ def get_2g_cell_eri(log_file_path):
         eri_cell_idx += 1
 
     # DataFrame => Drop some columns to get just the most important ones.
+    df_eri_2g_cell_full['CELL_NO'] = 'N/A'
+    eri_col_names = ['MSS','Date','Time','CELL_NAME','CELL_NO','CGI','MCC','MNC','LAC','CI','NE','CO','RO','NCS','EA']
+    df_eri_2g_cell_full = df_eri_2g_cell_full[eri_col_names]
     df_eri_2g_cell_summ = df_eri_2g_cell_full
     df_eri_2g_cell_full['LAI'] = df_eri_2g_cell_full['MCC'] + '-' + \
                                     df_eri_2g_cell_full['MNC'] + '-' + \
                                     df_eri_2g_cell_full['LAC']
     df_eri_2g_cell_full['MSS-LAI'] = df_eri_2g_cell_full['MSS'] + '-' + \
                                         df_eri_2g_cell_full['LAI']
-    eri_drop_col = ['CO', 'RO', 'NCS', 'EA']
+    eri_drop_col = ['Date', 'Time', 'CO', 'RO', 'NCS', 'EA']
     df_eri_2g_cell_summ = df_eri_2g_cell_summ.drop(columns=eri_drop_col)
-    eri_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
+    eri_col_summ = ['MSS', 'NE', 'CELL_NAME', 'CELL_NO', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
     df_eri_2g_cell_summ = df_eri_2g_cell_summ[eri_col_summ]
 
     return df_eri_2g_cell_full, df_eri_2g_cell_summ
@@ -1253,7 +1257,7 @@ def get_3g_cell_no_ne_nok(log_file_path):
     nok_logfile = open_file(log_file_path)
 
     # Create & Init & Set the NOKIA pd.DataFrame
-    nok_col_names = ['MSS','Date','Time','Name','Number','LAC_Name', 'LAC','MCC','MNC','CI','Status','RZ', 'CDR']
+    nok_col_names = ['MSS','Date','Time','CELL_NAME','CELL_NO','LAC_Name', 'LAC','MCC','MNC','CI','Status','RZ', 'CDR']
     df_nok_3g_cell_no_ne_full = pd.DataFrame(columns=nok_col_names)
     df_nok_3g_cell_no_ne_full.loc[0] = [nok_sa_mss_name, nok_sa_mss_date, nok_sa_mss_time, nok_sa_name, nok_sa_no,
                                             nok_sa_lac_name, nok_sa_lac_no, nok_sa_mcc, nok_sa_mnc, nok_sa_ci,
@@ -1283,9 +1287,9 @@ def get_3g_cell_no_ne_nok(log_file_path):
                                             df_nok_3g_cell_no_ne_summ['MNC'] + '-' + \
                                             df_nok_3g_cell_no_ne_summ['LAC'] + '-' + \
                                             df_nok_3g_cell_no_ne_summ['CI']
-    nok_drop_col = ['Number', 'LAC_Name', 'Status', 'RZ', 'CDR']
+    nok_drop_col = ['Date', 'Time', 'LAC_Name', 'Status', 'RZ', 'CDR']
     df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_summ.drop(columns=nok_drop_col)
-    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
+    nok_col_summ = ['MSS', 'CELL_NAME', 'CELL_NO', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
     df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_summ[nok_col_summ]
     
     return df_nok_3g_cell_no_ne_full, df_nok_3g_cell_no_ne_summ
@@ -1334,7 +1338,7 @@ def get_3g_cell_no_ne_eri(log_file_path):
     eri_logfile = open_file(log_file_path)
 
     # Create & Init & Set the ERICSSON pd.DataFrame
-    eri_col_names = ['MSS','Date','Time','Name','CGI','MCC','MNC','LAC','CI','RO','CO','EA']
+    eri_col_names = ['MSS','Date','Time','CELL_NAME','CGI','MCC','MNC','LAC','CI','RO','CO','EA']
     df_eri_3g_cell_no_ne_full = pd.DataFrame(columns=eri_col_names)
     df_eri_3g_cell_no_ne_full.loc[0] = [eri_area_mss_name, eri_area_mss_date, eri_area_mss_time,
                                             eri_area_name, eri_area_cgi, eri_area_mcc, eri_area_mnc,
@@ -1355,15 +1359,18 @@ def get_3g_cell_no_ne_eri(log_file_path):
         eri_area_idx += 1
 
     # DataFrame => Drop some columns to get just the most important ones.
+    df_eri_3g_cell_no_ne_full['CELL_NO'] = 'N/A'
+    eri_col_names = ['MSS','Date','Time','CELL_NAME','CELL_NO','CGI','MCC','MNC','LAC','CI','RO','CO','EA']
+    df_eri_3g_cell_no_ne_full = df_eri_3g_cell_no_ne_full[eri_col_names]
     df_eri_3g_cell_no_ne_summ = df_eri_3g_cell_no_ne_full
     df_eri_3g_cell_no_ne_full['LAI'] =  df_eri_3g_cell_no_ne_full['MCC'] + '-' + \
                                         df_eri_3g_cell_no_ne_full['MNC'] + '-' + \
                                         df_eri_3g_cell_no_ne_full['LAC']
     df_eri_3g_cell_no_ne_full['MSS-LAI'] =  df_eri_3g_cell_no_ne_full['MSS'] + '-' + \
                                             df_eri_3g_cell_no_ne_full['LAI']
-    eri_drop_col = ['CO', 'RO', 'EA']
+    eri_drop_col = ['Date', 'Time', 'CO', 'RO', 'EA']
     df_eri_3g_cell_no_ne_summ = df_eri_3g_cell_no_ne_summ.drop(columns=eri_drop_col)
-    eri_col_summ = ['MSS', 'Date', 'Time', 'Name', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
+    eri_col_summ = ['MSS', 'CELL_NAME', 'CELL_NO', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
     df_eri_3g_cell_no_ne_summ = df_eri_3g_cell_no_ne_summ[eri_col_summ]
 
     return df_eri_3g_cell_no_ne_full, df_eri_3g_cell_no_ne_summ
@@ -1513,7 +1520,7 @@ def get_3g_cell_nok(log_file_3g_cell_path, log_file_lai_x_rnc_mapp_path):
     df_nok_3g_cell_summ = df_nok_3g_cell_no_ne_summ
     nok_drop_col = ['LAI', 'MSS-LAI']                                                           # Define columns to drop 
     df_nok_3g_cell_summ = df_nok_3g_cell_summ.drop(columns=nok_drop_col)                        # Drop columns
-    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']      # Define the column's order
+    nok_col_summ = ['MSS', 'NE', 'CELL_NAME', 'CELL_NO', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']      # Define the column's order
     df_nok_3g_cell_summ = df_nok_3g_cell_summ[nok_col_summ]                                     # Order the collumns
 
     return df_nok_3g_cell_full, df_nok_3g_cell_summ
@@ -1562,7 +1569,7 @@ def get_3g_cell_eri(log_file_3g_cell_path, log_file_lai_x_rnc_mapp_path):
     df_eri_3g_cell_summ = df_eri_3g_cell_no_ne_summ
     nok_drop_col = ['LAI', 'MSS-LAI']                                                           # Define columns to drop 
     df_eri_3g_cell_summ = df_eri_3g_cell_summ.drop(columns=nok_drop_col)                        # Drop columns
-    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']      # Define the column's order
+    nok_col_summ = ['MSS', 'NE', 'CELL_NAME', 'CELL_NO', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']      # Define the column's order
     df_eri_3g_cell_summ = df_eri_3g_cell_summ[nok_col_summ]                                     # Order the collumns
 
     return df_eri_3g_cell_full, df_eri_3g_cell_summ
