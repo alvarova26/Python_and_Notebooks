@@ -780,7 +780,7 @@ def get_mgcep_cell_pars(file, start_idx):
     if (pos >= 0) and (idx < len(file)-1) and (not pos == 999) and (not pos == 998):        # if found and not EOF and not 'END' or 'EXIT' =>
         my_line = file[idx]                                                                 # Reads the line and extracts data
         CELL_NAME = my_line[0:8:].strip()
-        CELL_CGI = my_line[9:26:].strip()
+        CELL_CGI = my_line[9:27:].strip()
         CELL_MCC, CELL_MNC, CELL_LAC, CELL_CI = my_line[9:26:].split('-', 3)
         CELL_MCC = CELL_MCC.strip()
         CELL_MNC = CELL_MNC.strip()
