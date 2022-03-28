@@ -1375,107 +1375,6 @@ def get_3g_cell_no_ne_eri(log_file_path):
 
     return df_eri_3g_cell_no_ne_full, df_eri_3g_cell_no_ne_summ
 
-    '''
-    Function:   
-        + Process a log_file with all the 3G cells of NOKIA's MSSs including the LAI<=>RNC mapping
-    Arguments:      
-        + log_file_path => path to the log_file
-        + df_mapp       => DataFrame with the NOKIA's LAI<=>RNC mapping
-    Output:     
-        + df_full       => DataFrame with full 2G cells of NOKIA's MSSs including the LAI<=>RNC mapping
-        + df_summ       => DataFrame with summarized 2G cells of NOKIA's MSSs including the LAI<=>RNC mapping
-    '''
-    
-    # Variable control
-    assert isinstance(df_mapp, pd.DataFrame),'Received argument must be a pd.DataFrame'
-    assert isinstance(log_file_path, str),'Path to look for the file must be string'
-    assert len(log_file_path) > 0, 'File is empty'
-
-    ###################################################### Code (get_3g_cell_no_ne_nok part)
-
-    # Init NOKIA Variables
-    nok_sa_mss_name = '0'
-    nok_sa_mss_date = '0'
-    nok_sa_mss_time = '0'
-    nok_sa_name = '0'
-    nok_sa_no = '0'
-    nok_sa_lac_name = '0'
-    nok_sa_lac_no = '0'
-    nok_sa_mcc = '0'
-    nok_sa_mnc = '0'
-    nok_sa_ci = '0'
-    nok_sa_stat = '0'
-    nok_sa_rz = '0'
-    nok_sa_cdr = '0'
-
-    nok_mss_pars = [nok_sa_mss_name, nok_sa_mss_date, nok_sa_mss_time]
-    nok_sa_pars = [nok_sa_name, nok_sa_no, nok_sa_lac_name, nok_sa_lac_no, nok_sa_mcc, nok_sa_mnc,
-                    nok_sa_ci, nok_sa_stat, nok_sa_rz, nok_sa_cdr]
-
-    nok_sa_idx = 0
-    nok_sa_pos = 0
-    nok_sa_count = 0
-
-    # Open & Load NOKIA logfile
-    nok_logfile = open_file(log_file_path)
-
-    # Create & Init & Set the NOKIA pd.DataFrame
-
-    nok_col_names = ['MSS','Date','Time','Name','Number','LAC_Name', 'LAC','MCC','MNC','CI','Status','RZ', 'CDR']
-    df_nok_3g_cell_no_ne_full = pd.DataFrame(columns=nok_col_names)
-    df_nok_3g_cell_no_ne_full.loc[0] = [nok_sa_mss_name, nok_sa_mss_date, nok_sa_mss_time, nok_sa_name, nok_sa_no,
-                                            nok_sa_lac_name, nok_sa_lac_no, nok_sa_mcc, nok_sa_mnc, nok_sa_ci,
-                                            nok_sa_stat, nok_sa_rz, nok_sa_cdr]
-
-    # Run the main program (txt => pd.DataFrame)
-    while (nok_sa_idx < len(nok_logfile)-1):
-        nok_sa_idx, nok_sa_pos, nok_mss_pars = get_mss_pars(nok_logfile, nok_sa_idx,'ZEPO:TYPE=SA;')
-        while (nok_sa_idx < len(nok_logfile)-1) and (not nok_sa_pos == 999):
-            nok_sa_idx, nok_sa_pos, nok_sa_pars = get_zepo_3g_sa_pars(nok_logfile, nok_sa_idx)
-            if (nok_sa_pos >= 0) and (not nok_sa_pos == 999):
-                new_SA = nok_mss_pars + nok_sa_pars
-                df_nok_3g_cell_no_ne_full.loc[nok_sa_count] = new_SA
-                nok_sa_count += 1
-        nok_sa_idx += 1
-
-    # DataFrame => Drop some columns to get just the most important ones.
-    df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_full
-    df_nok_3g_cell_no_ne_summ['CGI'] =  df_nok_3g_cell_no_ne_summ['MCC'] + '-' + \
-                                            df_nok_3g_cell_no_ne_summ['MNC'] + '-' + \
-                                            df_nok_3g_cell_no_ne_summ['LAC'] + '-' + \
-                                            df_nok_3g_cell_no_ne_summ['CI']
-
-    nok_drop_col = ['Number', 'LAC_Name', 'Status', 'RZ', 'CDR']
-    df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_summ.drop(columns=nok_drop_col)
-    df_nok_3g_cell_no_ne_summ['MSS'] = df_nok_3g_cell_no_ne_summ['MSS'].str.replace(r'0', '')
-    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']
-    df_nok_3g_cell_no_ne_summ = df_nok_3g_cell_no_ne_summ[nok_col_summ]
-    df_nok_3g_cell_no_ne_summ['LAI'] = df_nok_3g_cell_no_ne_summ['MCC'] + '-' + \
-                                        df_nok_3g_cell_no_ne_summ['MNC'] + '-' + \
-                                        df_nok_3g_cell_no_ne_summ['LAC']
-    df_nok_3g_cell_no_ne_summ['MSS-LAI'] = df_nok_3g_cell_no_ne_summ['MSS'] + '-' + \
-                                            df_nok_3g_cell_no_ne_summ['LAI']
-    df_nok_3g_cell_no_ne_full['LAI'] = df_nok_3g_cell_no_ne_full['MCC'] + '-' + \
-                                        df_nok_3g_cell_no_ne_full['MNC'] + '-' + \
-                                        df_nok_3g_cell_no_ne_full['LAC']
-    df_nok_3g_cell_no_ne_full['MSS-LAI'] = df_nok_3g_cell_no_ne_full['MSS'] + '-' + \
-                                            df_nok_3g_cell_no_ne_full['LAI']
-
-    ###################################################### Code (join LAI<=>RNC mapping with the 3G cells)
-
-    # Create a dictionary to map MSS-LAI to RNC & mapping on key=MSS-LAI
-    my_dict = dict(zip(df_mapp['MSS-LAI'], df_mapp['RNC']))                                     # Create a dictionary to map MSS-LAI to RNC
-    df_nok_3g_cell_no_ne_full['NE'] = df_nok_3g_cell_no_ne_full['MSS-LAI'].map(my_dict)         # Create a new column NE (RNC) for mapping on key=MSS-LAI
-    df_nok_3g_cell_no_ne_summ['NE'] = df_nok_3g_cell_no_ne_summ['MSS-LAI'].map(my_dict)         # Create a new column NE (RNC) for mapping on key=MSS-LAI
-    df_nok_3g_cell_full = df_nok_3g_cell_no_ne_full                                    
-    df_nok_3g_cell_summ = df_nok_3g_cell_no_ne_summ
-    nok_drop_col = ['LAI', 'MSS-LAI']                                                           # Define columns to drop 
-    df_nok_3g_cell_summ = df_nok_3g_cell_summ.drop(columns=nok_drop_col)                        # Drop columns
-    nok_col_summ = ['MSS', 'Date', 'Time', 'Name', 'NE', 'MCC', 'MNC', 'LAC', 'CI', 'CGI']      # Define the column's order
-    df_nok_3g_cell_summ = df_nok_3g_cell_summ[nok_col_summ]                                     # Order the collumns
-
-    return df_nok_3g_cell_full, df_nok_3g_cell_summ
-
 ###############################################################################################################################################
 def get_3g_cell_nok(log_file_3g_cell_path, log_file_lai_x_rnc_mapp_path):
     '''
@@ -2356,12 +2255,27 @@ def create_lai_nok(my_df, my_cmd='create'):
     if (my_cmd == 'create'):
         mss0=my_df['MSS'][0]
         print('\n! ' + mss0)
+        print('!--------------------------------------------------------------------------------------\n')
+        print('! Check')
         print('!--------------------------------------------------------------------------------------')
+        print('ZELO;')
+        print('ZEKO:ZC=0&1&2&3&4&5;')
+        print('ZMVF::LAC=ALL,::::;')
+        print('ZWVJ;')
+        print('ZCWI:NAME=ICMMSS;')
+
         for lai in range(len(my_df)):
             mss1=my_df['MSS'][lai]
             if not (mss0==mss1):
                 print('\n! ' + mss1)
+                print('!--------------------------------------------------------------------------------------\n')
+                print('! Check')
                 print('!--------------------------------------------------------------------------------------')
+                print('ZELO;')
+                print('ZEKO:ZC=0&1&2&3&4&5;')
+                print('ZMVF::LAC=ALL,::::;')
+                print('ZWVJ;')
+                print('ZCWI:NAME=ICMMSS;')
                 mss0=mss1
 
             lai_mun = my_df['Municipio'][lai]
@@ -2399,12 +2313,27 @@ def create_lai_nok(my_df, my_cmd='create'):
     if (my_cmd == 'fallback'):
         mss0=my_df['MSS'][0]
         print('\n! ' + mss0)
+        print('!--------------------------------------------------------------------------------------\n')
+        print('! Check')
         print('!--------------------------------------------------------------------------------------')
+        print('ZELO;')
+        print('ZEKO:ZC=0&1&2&3&4&5;')
+        print('ZMVF::LAC=ALL,::::;')
+        print('ZWVJ;')
+        print('ZCWI:NAME=ICMMSS;')
+
         for lai in range(len(my_df)):
             mss1=my_df['MSS'][lai]
             if not (mss0==mss1):
                 print('\n! ' + mss1)
+                print('!--------------------------------------------------------------------------------------\n')
+                print('! Check')
                 print('!--------------------------------------------------------------------------------------')
+                print('ZELO;')
+                print('ZEKO:ZC=0&1&2&3&4&5;')
+                print('ZMVF::LAC=ALL,::::;')
+                print('ZWVJ;')
+                print('ZCWI:NAME=ICMMSS;')
                 mss0=mss1
 
             lai_mun = my_df['Municipio'][lai]
@@ -2455,12 +2384,25 @@ def create_lai_eri(my_df, my_cmd='create'):
     if (my_cmd == 'create'):
         mss0=my_df['MSS'][0]
         print('\n! ' + mss0)
+        print('!--------------------------------------------------------------------------------------\n')
+        print('! Check')
         print('!--------------------------------------------------------------------------------------')
+        print('MGLAP;')
+        print('MGLXP:LATA=ALL;')
+        print('MGNRP:LAI=ALL;')
+        print('MGSVP:LAI=ALL;')
+
         for lai in range(len(my_df)):
             mss1=my_df['MSS'][lai]
             if not (mss0==mss1):
                 print('\n! ' + mss1)
+                print('!--------------------------------------------------------------------------------------\n')
+                print('! Check')
                 print('!--------------------------------------------------------------------------------------')
+                print('MGLAP;')
+                print('MGLXP:LATA=ALL;')
+                print('MGNRP:LAI=ALL;')
+                print('MGSVP:LAI=ALL;')
                 mss0=mss1
 
             lai_mun = my_df['Municipio'][lai]
@@ -2493,12 +2435,25 @@ def create_lai_eri(my_df, my_cmd='create'):
     if (my_cmd == 'fallback'):
         mss0=my_df['MSS'][0]
         print('\n! ' + mss0)
+        print('!--------------------------------------------------------------------------------------\n')
+        print('! Check')
         print('!--------------------------------------------------------------------------------------')
+        print('MGLAP;')
+        print('MGLXP:LATA=ALL;')
+        print('MGNRP:LAI=ALL;')
+        print('MGSVP:LAI=ALL;')
+
         for lai in range(len(my_df)):
             mss1=my_df['MSS'][lai]
             if not (mss0==mss1):
                 print('\n! ' + mss1)
+                print('!--------------------------------------------------------------------------------------\n')
+                print('! Check')
                 print('!--------------------------------------------------------------------------------------')
+                print('MGLAP;')
+                print('MGLXP:LATA=ALL;')
+                print('MGNRP:LAI=ALL;')
+                print('MGSVP:LAI=ALL;')
                 mss0=mss1
 
             lai_mun = my_df['Municipio'][lai]
