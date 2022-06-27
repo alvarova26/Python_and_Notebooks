@@ -2473,3 +2473,109 @@ def create_lai_eri(my_df, my_cmd='create'):
             print('MGLAE:LAI=' + lai_lai + ';')
     
     return True
+
+
+
+
+
+
+
+
+
+
+###############################################################################################################################################
+def rehome_cell_2g_nok(my_df, my_cmd='change'):
+    '''
+    Function:   
+        + Generates the commands to change/fallback to rehome a cell from one NE to another in NOKIAS's MSSs
+    Arguments:      
+        + my_df         => DataFrame with the information needed for change/fallback
+        + my_cmd        => string coommand to return the change commands or the corrspondent fallback
+    Output:     
+        + None          => None - just analyze and print the commands
+    '''
+
+    # Variable control
+    assert isinstance(my_df, pd.DataFrame),'Received argument must be a pd.DataFrame'
+    assert isinstance(my_cmd, str),'Received argument must be a pd.DataFrame'
+    assert len(my_cmd) > 0, 'Command (change or fallback) can not be empty'
+
+
+    ###################################################### Code
+    if (my_cmd == 'change'):
+        list_of_muni = my_df['Municipio'].unique()
+
+        for i in range(len(list_of_muni)):
+            idx=0
+            count=0
+            mun0 = list_of_muni[i]
+            for j in range(len(my_df)):
+                mun1 = my_df['Municipio'][j]
+                if (mun0 == mun1):
+                    idx = j
+                    count += 1
+
+            cell_from_to = my_df['DE-PARA'][idx-count+1]
+            print('\n! ' + mun0 + ' | Change ' + cell_from_to)
+            print('!--------------------------------------------------------------------------------------')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['CELL_NAME'][t]
+                print('ZEPO:NAME=' + cell_name + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['CELL_NAME'][t]
+                print('ZEPS:NAME=' + cell_name + ':L;')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['CELL_NAME'][t]
+                new_ne = my_df['para_NE'][t]
+                mcc_lai = my_df['para_MCC'][t]
+                mnc_lai = my_df['para_MNC'][t]
+                new_lai = my_df['para_LAC'][t]
+                #print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':LANAME=LAC' + new_lai + ';')
+                print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + new_ne + ':MCC=' + mcc_lai + ',MNC=' + mnc_lai + ',LAC=' + new_lai + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['CELL_NAME'][t]
+                print('ZEPS:NAME=' + cell_name + ':U;')
+
+    if (my_cmd == 'fallback'):
+        list_of_muni = my_df['Municipio'].unique()
+
+        for i in range(len(list_of_muni)):
+            idx=0
+            count=0
+            mun0 = list_of_muni[i]
+            for j in range(len(my_df)):
+                mun1 = my_df['Municipio'][j]
+                if (mun0 == mun1):
+                    idx = j
+                    count += 1
+
+            cell_from_to = my_df['DE-PARA'][idx-count+1]
+            print('\n! ' + mun0 + ' | Fallback ' + cell_from_to)
+            print('!--------------------------------------------------------------------------------------')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['CELL_NAME'][t]
+                print('ZEPO:NAME=' + cell_name + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['CELL_NAME'][t]
+                print('ZEPS:NAME=' + cell_name + ':L;')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['CELL_NAME'][t]
+                old_ne = my_df['NE'][t]
+                mcc_lai = my_df['MCC'][t]
+                mnc_lai = my_df['MNC'][t]
+                old_lai = my_df['LAC'][t]
+                #print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':LANAME=LAC' + old_lai + ';')
+                print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + old_ne + ':MCC=' + mcc_lai + ',MNC=' + mnc_lai + ',LAC=' + old_lai + ';')
+
+            for t in range(idx-count+1,idx+1):
+                cell_name = my_df['CELL_NAME'][t]
+                print('ZEPS:NAME=' + cell_name + ':U;')
+
+    return True
