@@ -2520,25 +2520,51 @@ def rehome_cell_2g_nok(my_df, my_cmd='change'):
             print('!--------------------------------------------------------------------------------------')
 
             for t in range(idx-count+1,idx+1):
-                cell_name = my_df['CELL_NAME'][t]
-                print('ZEPO:NAME=' + cell_name + ';')
+                if my_df['MSS'][t] == my_df['para_MSS'][t]:
+                    name_cell = my_df['para_CELL_NAME'][t]
+                    print('ZEPO:NAME=' + name_cell + ';')
+                else:
+                    name_cell = my_df['para_CELL_NAME'][t]
+                    mcc_cell = my_df['para_MCC'][t]
+                    mnc_cell = my_df['para_MNC'][t]
+                    lai_cell = my_df['para_LAC'][t]
+                    ci_cell = my_df['para_CI/SA'][t]
+                    no_cell = my_df['para_CELL_NO'][t]
+                    print('ZEPC:NAME=' + name_cell + ',NO=' + no_cell + ':MCC=' + mcc_cell + ',MNC=' + mnc_cell + ',LAC=' + lai_cell + ',CI=' + ci_cell + ';')
 
             for t in range(idx-count+1,idx+1):
-                cell_name = my_df['CELL_NAME'][t]
-                print('ZEPS:NAME=' + cell_name + ':L;')
+                if my_df['MSS'][t] == my_df['para_MSS'][t]:
+                    name_cell = my_df['para_CELL_NAME'][t]
+                    print('ZEPS:NAME=' + name_cell + ':L;')
+                else:
+                    name_cell = my_df['para_CELL_NAME'][t]
+                    ne_cell = my_df['para_NE'][t]
+                    print('ZEPB:NAME=' + name_cell + ':BSCNAME=' + ne_cell + ';')
 
             for t in range(idx-count+1,idx+1):
-                cell_name = my_df['CELL_NAME'][t]
-                new_ne = my_df['para_NE'][t]
-                mcc_lai = my_df['para_MCC'][t]
-                mnc_lai = my_df['para_MNC'][t]
-                new_lai = my_df['para_LAC'][t]
-                #print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + bsc_name + ':LANAME=LAC' + new_lai + ';')
-                print('ZEPB:NAME=' + cell_name + ':BSCNAME=' + new_ne + ':MCC=' + mcc_lai + ',MNC=' + mnc_lai + ',LAC=' + new_lai + ';')
+                if my_df['MSS'][t] == my_df['para_MSS'][t]:
+                    name_cell = my_df['para_CELL_NAME'][t]
+                    ne_cell = my_df['para_NE'][t]
+                    mcc_cell = my_df['para_MCC'][t]
+                    mnc_cell = my_df['para_MNC'][t]
+                    lai_cell = my_df['para_LAC'][t]
+                    print('ZEPB:NAME=' + name_cell + ':BSCNAME=' + ne_cell + ':MCC=' + mcc_cell + ',MNC=' + mnc_cell + ',LAC=' + lai_cell + ';')
+                else:
+                    name_cell = my_df['para_CELL_NAME'][t]
+                    rz_cell = my_df['para_RZ'][t]
+                    cn_cell = my_df['para_LAC'][t]
+                    cn_cell = cn_cell[-2:]
+                    print('ZEPR:NAME=' + name_cell + ':RZ=' + rz_cell + ',CDR=' + cn_cell + ';')
 
             for t in range(idx-count+1,idx+1):
-                cell_name = my_df['CELL_NAME'][t]
-                print('ZEPS:NAME=' + cell_name + ':U;')
+                if my_df['MSS'][t] == my_df['para_MSS'][t]:
+                    name_cell = my_df['para_CELL_NAME'][t]
+                    print('ZEPS:NAME=' + name_cell + ':U;')
+                else:
+                    name_cell = my_df['para_CELL_NAME'][t]
+                    print('ZEPS:NAME=' + name_cell + ':U;')
+
+
 
     if (my_cmd == 'fallback'):
         list_of_muni = my_df['Municipio'].unique()
