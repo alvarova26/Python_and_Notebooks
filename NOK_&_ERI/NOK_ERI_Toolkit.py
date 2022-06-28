@@ -2669,7 +2669,7 @@ def rehome_cell_3g_nok(my_df, my_cmd='change'):
                     name_sa = my_df['para_CELL_NAME'][t]
                     rz_sa = my_df['para_RZ'][t]
                     cn_sa = my_df['para_LAC'][t]
-                    cn_sa = cn_cell[-2:]
+                    cn_sa = cn_sa[-2:]
                     print('ZEPR:TYPE=SA,NAME=' + name_sa + ':RZ=' + rz_sa + ',CDR=' + cn_sa + ';')
 
             for t in range(idx-count+1,idx+1):
@@ -2679,7 +2679,6 @@ def rehome_cell_3g_nok(my_df, my_cmd='change'):
                     mnc_sa = my_df['para_MNC'][t]
                     lai_sa = my_df['para_LAC'][t]
                     print('ZEPF:TYPE=SA,SANAME=' + name_sa + ':MGWNBR=MSS:MCC=' + mcc_sa + ',MNC=' + mnc_sa + ',LAC=' + lai_sa + ';')
-
                 else:
                     name_sa = my_df['para_CELL_NAME'][t]
                     rz_cell = my_df['para_RZ'][t]
@@ -2706,40 +2705,37 @@ def rehome_cell_3g_nok(my_df, my_cmd='change'):
                     idx = j
                     count += 1
 
-            cell_from_to = my_df['DE-PARA'][idx-count+1]
-            print('\n! ' + mun0 + ' | Fallback ' + cell_from_to)
+            sa_from_to = my_df['DE-PARA'][idx-count+1]
+            print('\n! ' + mun0 + ' | Fallback ' + sa_from_to)
             print('!--------------------------------------------------------------------------------------')
 
             for t in range(idx-count+1,idx+1):
                 if my_df['MSS'][t] == my_df['para_MSS'][t]:
-                    name_cell = my_df['para_CELL_NAME'][t]
-                    print('ZEPO:NAME=' + name_cell + ';')
+                    name_sa = my_df['para_CELL_NAME'][t]
+                    print('ZEPO:TYPE=SA,NAME=' + name_sa + ';')
                 else:
                     print('MSS origem diferente de MSS destino - FB N/A - CleanUp em outra CRQ se necessario')
 
             for t in range(idx-count+1,idx+1):
                 if my_df['MSS'][t] == my_df['para_MSS'][t]:
-                    name_cell = my_df['para_CELL_NAME'][t]
-                    print('ZEPS:NAME=' + name_cell + ':L;')
+                    name_sa = my_df['para_CELL_NAME'][t]
+                    print('ZEPS:TYPE=SA,NAME=' + name_sa + ':L;')
                 else:
                     print('MSS origem diferente de MSS destino - FB N/A - CleanUp em outra CRQ se necessario')
 
             for t in range(idx-count+1,idx+1):
                 if my_df['MSS'][t] == my_df['para_MSS'][t]:
-                    name_cell = my_df['para_CELL_NAME'][t]
-                    ne_cell = my_df['NE'][t]
-                    mcc_cell = my_df['MCC'][t]
-                    mnc_cell = my_df['MNC'][t]
-                    lai_cell = my_df['LAC'][t]
-                    print('ZEPB:NAME=' + name_cell + ':BSCNAME=' + ne_cell + ':MCC=' + mcc_cell + ',MNC=' + mnc_cell + ',LAC=' + lai_cell + ';')
+                    name_sa = my_df['para_CELL_NAME'][t]
+                    mcc_sa = my_df['MCC'][t]
+                    mnc_sa = my_df['MNC'][t]
+                    lai_sa = my_df['LAC'][t]
+                    print('ZEPF:TYPE=SA,SANAME=' + name_sa + ':MGWNBR=MSS:MCC=' + mcc_sa + ',MNC=' + mnc_sa + ',LAC=' + lai_sa + ';')
                 else:
                     print('MSS origem diferente de MSS destino - FB N/A - CleanUp em outra CRQ se necessario')
 
             for t in range(idx-count+1,idx+1):
                 if my_df['MSS'][t] == my_df['para_MSS'][t]:
-                    name_cell = my_df['para_CELL_NAME'][t]
-                    print('ZEPS:NAME=' + name_cell + ':U;')
-                else:
-                    print('MSS origem diferente de MSS destino - FB N/A - CleanUp em outra CRQ se necessario')
+                    name_sa = my_df['para_CELL_NAME'][t]
+                    print('ZEPS:TYPE=SA,NAME=' + name_sa + ':U;')
 
     return True
