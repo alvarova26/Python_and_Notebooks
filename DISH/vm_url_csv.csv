@@ -1,0 +1,14 @@
+vm,vm_url
+cLBA/cLB/cProbe: pro-fe-e1-clb-1131-0,http://localhost:8080/1131/monserver/AjaxClient/index.jsp
+cLBA/cLB/cProbe: pro-fe-e1-clba-1101-0,http://localhost:8080/1101/monserver/AjaxClient/index.jsp
+cLBA/cLB/cProbe: pro-fe-e1-clba-1102-0,http://localhost:8080/1102/monserver/AjaxClient/index.jsp
+cLBA/cLB/cProbe: pro-fe-e1-clb-1131-0,http://a08d10162cb0b4d088508a31ee33e032-19e7aad28208e100.elb.us-east-1.amazonaws.com/1131/monserver/AjaxClient/JSP/Login/Login.jsp
+cLBA/cLB/cProbe: pro-fe-e1-clba-1101-0,http://a08d10162cb0b4d088508a31ee33e032-19e7aad28208e100.elb.us-east-1.amazonaws.com/1101/monserver/AjaxClient/JSP/Login/Login.jsp
+cLBA/cLB/cProbe: pro-fe-e1-clba-1102-0,http://a08d10162cb0b4d088508a31ee33e032-19e7aad28208e100.elb.us-east-1.amazonaws.com/1102/monserver/AjaxClient/JSP/Login/Login.jsp
+cLBA/cLB/cProbe: pro-fe-e1-cprobe-1141-0,http://a08d10162cb0b4d088508a31ee33e032-19e7aad28208e100.elb.us-east-1.amazonaws.com/1141/monserver/AjaxClient/JSP/Login/Login.jsp
+cLBA/cLB/cProbe: pro-fe-e1-cprobe-1142-0,http://a08d10162cb0b4d088508a31ee33e032-19e7aad28208e100.elb.us-east-1.amazonaws.com/1142/monserver/AjaxClient/JSP/Login/Login.jsp
+cLBA/cLB/cProbe: pro-fe-e1-cprobe-1143-0,http://a08d10162cb0b4d088508a31ee33e032-19e7aad28208e100.elb.us-east-1.amazonaws.com/1143/monserver/AjaxClient/JSP/Login/Login.jsp
+cLBA/cLB/cProbe: pro-fe-e1-clb-1131-0,http://localhost:8080/1131/monserver/AjaxClient/index.jsp
+cLBA/cLB/cProbe: pro-fe-e1-clba-1101-0,http://localhost:8080/1101/monserver/AjaxClient/index.jsp
+cLBA/cLB/cProbe: pro-fe-e1-clba-1102-0,http://localhost:8080/1102/monserver/AjaxClient/index.jsp
+cLBA/cLB/cProbe: pro-fe-e1-cprobe-1144-0,http://a08d10162cb0b4d088508a31ee33e032-19e7aad28208e100.elb.us-east-1.amazonaws.com/1144/monserver/AjaxClient/JSP/Login/Login.jsp

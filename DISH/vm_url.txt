@@ -1,0 +1,7 @@
+http://localhost:8080/1131/monserver/AjaxClient/index.jsp
+http://localhost:8080/1101/monserver/AjaxClient/index.jsp
+http://localhost:8080/1102/monserver/AjaxClient/index.jsp
+http://localhost:8080/1141/monserver/AjaxClient/index.jsp
+http://localhost:8080/1142/monserver/AjaxClient/index.jsp
+http://localhost:8080/1143/monserver/AjaxClient/index.jsp
+http://localhost:8080/1144/monserver/AjaxClient/index.jsp
