@@ -1,0 +1,10 @@
+cLBA/cLB/cProbe				Response (with redirection if any)
+
+pro-fe-e1-clb-1131-0		200[<Response [302]>]
+pro-fe-e1-clba-1101-0		200[<Response [302]>]
+pro-fe-e1-clba-1102-0		200[<Response [302]>]
+pro-fe-e1-cprobe-1141-0		200[<Response [302]>]
+pro-fe-e1-cprobe-1142-0		200[<Response [302]>]
+pro-fe-e1-cprobe-1143-0		200[<Response [302]>]
+pro-fe-e2-clb-1231-0		connection_error
+pro-fe-e1-cprobe-1144-0		200[<Response [302]>]

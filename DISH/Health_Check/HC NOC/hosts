@@ -1,0 +1,5 @@
+127.0.0.1 conductor0.novalocal conductor0   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+10.228.101.50   srp-1
+10.228.101.21             conductor0.novalocal  conductor0
+10.228.103.211             conductor1.novalocal  conductor1

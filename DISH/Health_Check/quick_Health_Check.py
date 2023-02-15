@@ -52,27 +52,56 @@ def open_file(my_file_path, flag='csv'):
         print('Flag must be csv, xls or txt in this version of the function')
         return -1
 
+def write_res_to_txt(my_list, my_filename='script_output.txt'):
+    '''
+    Function:   
+        + Writes a list to a txt file (line by line)
+    Input:
+        + my_list       => List of strings
+        + my_filename   => Name for the output file
+    Output:
+        + N/A           => N/A - Writes a txt file
+    '''
+
+    # Variable control
+    assert isinstance(my_list, list), 'The input must be a list of string'
+    assert len(my_list) > 0, 'The input list is empty'
+    if not 'txt' in my_filename: my_filename = my_filename + '.txt'
+
+    # Code
+    with open(my_filename, 'w') as my_file:
+        my_file.write('cLBA/cLB/cProbe\t\t\t\tResponse (with redirection if any - 3xx)\n\n')
+        for i in range(len(my_list)):
+            my_file.write(my_list[i] + '\n')
 
 ###############################################################################################################################################
-########################################     LOAD SOURCE FILES     ############################################################################
+###############################################     CODE     ##################################################################################
 ###############################################################################################################################################
-#path_to_vm_url = '/tmp/vm_url.txt'
-#path_to_vm_url = 'vm_url.txt'
+
+# Path to file
 path_to_vm_url = 'vm_url_csv.csv'
 
-###############################################################################################################################################
-########################################     DATA MANIPULATION     ############################################################################
-###############################################################################################################################################
-#### vm_url File
-#vm_url_txt = open_file(path_to_vm_url, flag='txt')
+# Open file
+# Note: format of csv file: vm, vm_url. Example: pro-fe-e1-clb-1131-0,http://localhost:8080/1131/monserver/AjaxClient/index.jsp
 vm_url_df = open_file(path_to_vm_url, flag='csv')
+vm_url_res = []
 
+# Test connections
 for i in range(len(vm_url_df)):
     try:
-        res = requests.get(vm_url_df.vm_url[i], timeout=3)
-        print(res.status_code)
-        print(res)
+        with requests.Session() as my_session:
+            res = my_session.get(vm_url_df.vm_url[i], timeout=3)
+            print(res.status_code, res.history)
+            vm_url_res.append(vm_url_df.vm[i] + "\t\t" + str(res.status_code) + str(res.history))
+
     except requests.exceptions.RequestException as e:
         print("connection_error")
+        vm_url_res.append(vm_url_df.vm[i] + "\t\t" + "connection_error")
 
+# Set name and path for the exported file
+today_date = datetime.today().strftime('%Y-%m-%d')
+today_date = today_date.replace('-', '')
+file_name = today_date + ' - quick_Health_Check_output' + '.txt'
 
+# Export file
+write_res_to_txt(vm_url_res, file_name)

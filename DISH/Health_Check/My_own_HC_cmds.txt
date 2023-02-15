@@ -1,0 +1,109 @@
+
+# Get date/time (in this case, Vertica IP - but could be any machine)
+ssh -q  deployment@10.228.101.39 "sudo date"
+
+# Get list of IPs of BE servers (conductor)
+cat /home/deployment/BE-servers.list
+
+# Get list of IPs to check (conductor)
+cat /home/deployment/iplist_tocheck_ssh.txt
+
+# Get list of IPs defined in etc/hosts (conductor)
+cat /etc/hosts
+
+# Get crm status (conductor)
+cat /tmp/crm_status_output.txt
+
+# Get all machines (conductor)
+curl -sg http://127.0.0.1:8084/MaveriQConductor/machines
+
+
+
+
+
+########## Next all commands from conductor
+
+# Ping to all BE-servers (run => sh /home/deployment/Ping.sh | local machine)
+sh /home/deployment/Ping.sh >> /tmp/test.txt
+
+# Qloader status (run => sudo service qloader status @ remote machine)
+ssh deployment@10.228.101.23 "sudo service qloader status" >> /tmp/test.txt
+ssh deployment@10.228.103.198 "sudo service qloader status" >> /tmp/test.txt
+
+# Qrouter status (run => sudo service qrouter status @ grep QRouter)
+ssh deployment@10.228.101.28 "sudo service qrouter status | grep QRouter" >> /tmp/test.txt
+ssh deployment@10.228.103.230 "sudo service qrouter status | grep QRouter" >> /tmp/test.txt
+
+# Qrouter Drops (run => sudo sh /tmp/qrouter.sh @ remote machine)
+ssh deployment@10.228.101.28 "sudo sh /tmp/qrouter.sh" >> /tmp/test.txt
+ssh deployment@10.228.103.230 "sudo sh /tmp/qrouter.sh" >> /tmp/test.txt
+
+# Processing KPIs (run => sudo /omniqdir/scripts/OpenFifo/printPall.bash Action @ remote machine)
+ssh deployment@10.228.101.58 "sudo /omniqdir/scripts/OpenFifo/printPall.bash Action | tail -5" >> /tmp/test.txt
+ssh deployment@10.228.103.228 "sudo /omniqdir/scripts/OpenFifo/printPall.bash Action | tail -5" >> /tmp/test.txt
+ssh deployment@10.228.101.238 "sudo /omniqdir/scripts/OpenFifo/printPall.bash Action | tail -5" >> /tmp/test.txt
+
+# Vertica top 5 nodes with storage_usage (run => command/query below)
+ssh deployment@10.228.101.39 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c " SELECT node_name, storage_usage, (sum(disk_space_used_mb)*100/sum(disk_space_free_mb + disk_space_used_mb))::int storage_usage_percent  FROM disk_storage where storage_usage <> USER GROUP BY 1, 2  having (sum(disk_space_used_mb)*100/sum(disk_space_free_mb + disk_space_used_mb))::int > 5 ORDER BY 3 desc limit 5; " '>> /tmp/test.txt
+
+# Vertica nodes status (run => command/query below)
+ssh deployment@10.228.101.39 "sudo su -l dbadmin -c '/opt/vertica/bin/admintools -t list_allnodes'"  >> /tmp/test.txt
+
+# Vertica mv_execution check (run => command/query below)
+ssh deployment@10.228.101.39 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select * from mv_execution" '  >> /tmp/test.txt
+ssh deployment@10.228.103.243 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select * from mv_execution" '  >> /tmp/test.txt
+ssh deployment@10.228.101.202 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select * from mv_execution" '  >> /tmp/test.txt
+ssh deployment@10.228.101.16 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select * from mv_execution" '  >> /tmp/test.txt
+ssh deployment@10.228.103.251 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select * from mv_execution" '  >> /tmp/test.txt
+ssh deployment@10.228.101.229 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select * from mv_execution" '  >> /tmp/test.txt
+ssh deployment@10.228.101.59 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select * from mv_execution" '  >> /tmp/test.txt
+
+# Vertica Bad file status (run => command/query below)
+ssh deployment@10.228.101.39 "sudo hostname" >> /tmp/test.txt
+ssh deployment@10.228.101.39 "sudo ls -lrth /radcom/omniq/QLoader | grep -i .bad | wc --lines" >> /tmp/test.txt
+ssh deployment@10.228.103.243 "sudo hostname" >> /tmp/test.txt
+ssh deployment@10.228.103.243 "sudo ls -lrth /radcom/omniq/QLoader | grep -i .bad | wc --lines" >> /tmp/test.txt
+ssh deployment@10.228.101.202 "sudo hostname" >> /tmp/test.txt
+ssh deployment@10.228.101.202 "sudo ls -lrth /radcom/omniq/QLoader | grep -i .bad | wc --lines" >> /tmp/test.txt
+ssh deployment@10.228.101.16 "sudo hostname" >> /tmp/test.txt
+ssh deployment@10.228.101.16 "sudo ls -lrth /radcom/omniq/QLoader | grep -i .bad | wc --lines" >> /tmp/test.txt
+ssh deployment@10.228.103.251 "sudo hostname" >> /tmp/test.txt
+ssh deployment@10.228.103.251 "sudo ls -lrth /radcom/omniq/QLoader | grep -i .bad | wc --lines" >> /tmp/test.txt
+ssh deployment@10.228.101.229 "sudo hostname" >> /tmp/test.txt
+ssh deployment@10.228.101.229 "sudo ls -lrth /radcom/omniq/QLoader | grep -i .bad | wc --lines" >> /tmp/test.txt
+ssh deployment@10.228.101.59 "sudo hostname" >> /tmp/test.txt
+ssh deployment@10.228.101.59 "sudo ls -lrth /radcom/omniq/QLoader | grep -i .bad | wc --lines" >> /tmp/test.txt
+
+# CRM Status (Cluster Resources Manager)
+# Conductor
+ssh deployment@10.228.101.21 "sudo crm status" >> /tmp/test.txt
+# Analyst
+ssh deployment@10.228.101.18 "sudo crm status" >> /tmp/test.txt
+# API Gateway
+ssh deployment@10.228.101.36 "sudo crm status" >> /tmp/test.txt
+# QLoader
+ssh deployment@10.228.101.23 "sudo crm status" >> /tmp/test.txt
+
+
+# Data validation in DB
+# Delay_Diameter
+ssh deployment@10.228.101.39 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select (sysdate - max(start_time))Delay_Diameter from omniq.cdr_hpa_diameter;" ' >>/tmp/test.txt
+# Probe count last 15 min Diameter
+ssh deployment@10.228.101.39 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select measuring_probe_name,count(*) from omniq.cdr_hpa_diameter where start_time > sysdate -15/1440 group by 1 order by 1;" ' >>/tmp/test.txt
+
+# Delay_SIP
+ssh deployment@10.228.101.39 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select (sysdate - max(start_time))Delay_SIP from omniq.cdr_hpa_sip;" ' >>/tmp/test.txt
+# Probe count last 15 min SIP
+ssh deployment@10.228.101.39 '/opt/vertica/bin/vsql -U omniq -w radcom -t -c "select measuring_probe_name,count(*) from omniq.cdr_hpa_sip where start_time > sysdate -15/1440 group by 1 order by 1;" ' >>/tmp/test.txt
+
+
+
+# Get ALL FE => SEGUIR ACA! VER COMO FUNCIONA!
+curl -sg http://127.0.0.1:8084/MaveriQConductor/machines
+cond=127.0.0.1 types="vprobe|vLB|vLBAgent"; curl -sg http://$cond:8084/MaveriQConductor/machines | awk '/Clusters:/{exit};$0~/type=('$types')/{l_print=1};l_print==1&&/site=/{l_print=0;match($0,/=/);print substr($0,RSTART+1)}' | sort -u | while read site; do echo $'\n\n'\#$site; curl -sg http://$cond:8084/MaveriQConductor/machines | awk -v "OFS=\t" '/Clusters:/{exit};/name=/{match($0,/=([^.]+)/);name=substr($0,RSTART+1,RLENGTH-1);l_print=0};$0~/type=('$types')/{l_print=1};/attributes=/{match($0,/_oam_direct_net_1:([^;]+)/);ip_direct=substr($0,RSTART+18,RLENGTH-18)};l_print==1&&/site='$site'$/{print ip_direct,name}' | sort -k2; done
+
+
+# Connect to vLBA/vLB/vProbe
+
+from conductor
+sh /tmp/script_curl.sh
