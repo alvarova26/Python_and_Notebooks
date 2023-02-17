@@ -1,0 +1,30 @@
+MachineName,AlarmName,AlarmDescription,AlarmValue,MachineIP,TimeStampDisplay
+vertica6,IsAlive,Keep Alive,0,3,10.228.101.59,2022-12-11
+vertica5,IsAlive,Keep Alive,0,3,10.228.101.229,2022-12-11
+vertica4,IsAlive,Keep Alive,0,3,10.228.103.251,2022-12-11
+vertica3,IsAlive,Keep Alive,0,3,10.228.101.16,2022-12-11
+vertica2,IsAlive,Keep Alive,0,3,10.228.101.202,2022-12-11
+vertica1,IsAlive,Keep Alive,0,3,10.228.103.243,2022-12-11
+vertica0,IsAlive,Keep Alive,0,3,10.228.101.39,2022-12-11
+settingsandhealthdb2,IsAlive,Mongod is alive,0,3,10.228.101.206,2022-12-11
+settingsandhealthdb1,IsAlive,VM Keep Alive,0,3,10.228.103.215,2022-12-11
+settingsandhealthdb1,IsAlive,Mongod is alive,0,3,10.228.103.215,2022-12-11
+settingsandhealthdb0,IsAlive,Mongod is alive,0,3,10.228.101.52,2022-12-11
+qloader0,IsAlive,VM Keep Alive,0,3,10.228.101.23,2022-12-11
+processing2,IsAlive,VM Keep Alive,0,3,10.228.101.238,2022-12-11
+processing1,IsAlive,VM Keep Alive,0,3,10.228.103.228,2022-12-11
+processing0,IsAlive,VM Keep Alive,0,3,10.228.101.58,2022-12-11
+kafka2,IsAlive,Keep Alive,0,3,10.228.101.209,2022-12-11
+kafka1,IsAlive,Keep Alive,0,3,10.228.103.224,2022-12-11
+kafka0,IsAlive,Keep Alive,0,3,10.228.101.26,2022-12-11
+configurationrepository,IsAlive,Keep Alive,0,3,10.228.101.17,2022-12-11
+conductor1,IsAlive,Keep Alive,1,3,10.228.103.211,2022-12-11
+conductor1,IsAlive,Keep Alive,1,3,10.228.103.211,2022-12-11
+conductor0,IsAlive,Keep Alive,0,3,10.228.101.21,2022-12-11
+conductor0,IsAlive,Keep Alive,0,3,10.228.101.21,2022-12-11
+apigw1,IsAlive,VM Keep Alive,0,3,10.228.103.209,2022-12-11
+apigw0,IsAlive,VM Keep Alive,0,3,10.228.101.36,2022-12-11
+analyst1,IsAlive,VM Keep Alive,0,3,10.228.103.239,2022-12-11
+analyst1,IsAlive,Keep Alive,0,3,10.228.103.239,2022-12-11
+analyst0,IsAlive,VM Keep Alive,0,3,10.228.101.18,2022-12-11
+analyst0,IsAlive,Keep Alive,0,3,10.228.101.18,2022-12-11

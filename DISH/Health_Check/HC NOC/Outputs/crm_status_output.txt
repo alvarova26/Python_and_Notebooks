@@ -1,0 +1,82 @@
+Stack: corosync
+Current DC: analyst0 (version 1.1.23-1.el7_9.1-9acf116022) - partition with quorum
+Last updated: Thu Feb 16 08:54:02 2023
+Last change: Wed Feb 15 21:14:01 2023 by root via cibadmin on analyst0
+
+2 nodes configured
+7 resource instances configured
+
+Online: [ analyst0 analyst1 ]
+
+Full list of resources:
+
+ Resource Group: analyst_group
+     vprobes_mgmt_int_net_analyst_IP	(ocf::heartbeat:IPaddr2):	Started analyst0
+     backend_ic_net_analyst_IP	(ocf::heartbeat:IPaddr2):	Started analyst0
+ Application_watchdog	(ocf::radcom:App):	Started analyst0
+ Application_wildfly	(ocf::radcom:App):	Started analyst0
+ Application_doctor	(ocf::radcom:App):	Started analyst0
+ Application_whitelistms	(ocf::radcom:App):	Started analyst0
+ Application_monitor	(ocf::radcom:App):	Started analyst0
+
+Stack: classic openais (with plugin)
+Current DC: apigw1.novalocal (version 1.1.14-8.el6_8.1-70404b0) - partition with quorum
+Last updated: Thu Feb 16 08:54:02 2023
+Last change: Wed Feb 15 21:14:20 2023 by root via cibadmin on apigw0.novalocal
+
+2 nodes configured (2 expected votes)
+7 resource instances configured
+
+Online: [ apigw0.novalocal apigw1.novalocal ]
+
+Full list of resources:
+
+ Resource Group: apigw_group
+     vprobes_mgmt_int_net_apigw_IP	(ocf::heartbeat:IPaddr2):	Started apigw0.novalocal
+     backend_ic_net_apigw_IP	(ocf::heartbeat:IPaddr2):	Started apigw0.novalocal
+     oam_protected_net_apigw_IP	(ocf::heartbeat:IPaddr2):	Started apigw0.novalocal
+ Application_watchdog	(ocf::radcom:App):	Started apigw0.novalocal
+ Application_apigateway	(ocf::radcom:App):	Started apigw0.novalocal
+ Application_servicediscovery	(ocf::radcom:App):	Started apigw0.novalocal
+ Application_monitor	(ocf::radcom:App):	Started apigw0.novalocal
+
+Stack: classic openais (with plugin)
+Current DC: conductor0.novalocal (version 1.1.14-8.el6_8.1-70404b0) - partition with quorum
+Last updated: Thu Feb 16 08:54:03 2023
+Last change: Tue Aug  2 15:48:45 2022 by root via cibadmin on conductor0.novalocal
+
+2 nodes configured (2 expected votes)
+6 resource instances configured
+
+Online: [ conductor0.novalocal conductor1.novalocal ]
+
+Full list of resources:
+
+ Resource Group: conductor_group
+     vprobes_mgmt_int_net_conductor_IP	(ocf::heartbeat:IPaddr2):	Started conductor0.novalocal
+     backend_ic_net_conductor_IP	(ocf::heartbeat:IPaddr2):	Started conductor0.novalocal
+     oam_protected_net_conductor_IP	(ocf::heartbeat:IPaddr2):	Started conductor0.novalocal
+ Application_watchdog	(ocf::radcom:App):	Started conductor0.novalocal
+ Application_wildfly	(ocf::radcom:App):	Started conductor0.novalocal
+ Application_monitor	(ocf::radcom:App):	Started conductor0.novalocal
+
+Stack: classic openais (with plugin)
+Current DC: qloader0.novalocal (version 1.1.14-8.el6_8.1-70404b0) - partition with quorum
+Last updated: Thu Feb 16 08:54:03 2023
+Last change: Thu Nov 24 12:10:39 2022 by root via cibadmin on qloader0.novalocal
+
+2 nodes configured (2 expected votes)
+5 resource instances configured
+
+Online: [ qloader0.novalocal qloader1.novalocal ]
+
+Full list of resources:
+
+ Resource Group: QLoader_group
+     vprobes_mgmt_int_net_QLoader_IP	(ocf::heartbeat:IPaddr2):	Started qloader0.novalocal
+     backend_ic_net_QLoader_IP	(ocf::heartbeat:IPaddr2):	Started qloader0.novalocal
+ Application_watchdog	(ocf::radcom:App):	Started qloader0.novalocal
+ Application_qloader	(ocf::radcom:App):	Started qloader0.novalocal
+ Application_monitor	(ocf::radcom:App):	Started qloader0.novalocal
+
+CRM STATUS             : OK

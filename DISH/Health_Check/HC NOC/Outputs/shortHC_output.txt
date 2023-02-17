@@ -1,0 +1,266 @@
+Current system date : 
+Thu Feb 16 08:53:27 UTC 2023
+############################################
+Ping status
+Thu Feb 16 08:53:27 UTC 2023
+node 10.228.101.18 is up
+node 10.228.103.239 is up
+node 10.228.101.36 is up
+node 10.228.103.209 is up
+node 10.228.101.21 is up
+node 10.228.103.211 is up
+node 10.228.101.17 is up
+node 10.228.101.26 is up
+node 10.228.103.224 is up
+node 10.228.101.209 is up
+node 10.228.101.58 is up
+node 10.228.103.228 is up
+node 10.228.101.238 is up
+node 10.228.101.23 is up
+node 10.228.103.198 is up
+node 10.228.101.28 is up
+node 10.228.103.230 is up
+node 10.228.101.15 is up
+node 10.228.103.247 is up
+node 10.228.101.10 is up
+node 10.228.103.226 is up
+node 10.228.101.61 is up
+node 10.228.101.52 is up
+node 10.228.103.215 is up
+node 10.228.101.206 is up
+node 10.228.101.39 is up
+node 10.228.103.243 is up
+node 10.228.101.202 is up
+node 10.228.101.16 is up
+node 10.228.103.251 is up
+node 10.228.101.229 is up
+node 10.228.101.59 is up
+############################################
+QLoader Service Check
+qloader is alive
+############################################
+Qrouter Service Check
+QRouter is alive!
+############################################
+Qrouter Drop status
+QRouter Drops		NO
+############################################
+                                                           
+Processing  Drop status
+10.228.101.58 | Total Messages Dropped: 0
+10.228.103.228 | Total Messages Dropped: 0
+10.228.101.238 | Total Messages Dropped: 0
+                                                           
+Processing  Total Received Full CDRs
+10.228.101.58 | Total Received Full CDRs: 307705830
+10.228.103.228 | Total Received Full CDRs: 320514707
+10.228.101.238 | Total Received Full CDRs: 324104282
+                                                           
+Processing Rate of Cdrs Received 
+10.228.101.58 | Rate of Cdrs Received: 52 CDRs/sec
+10.228.103.228 | Rate of Cdrs Received: 96 CDRs/sec
+10.228.101.238 | Rate of Cdrs Received: 103 CDRs/sec
+                                                           
+############################################
+Vertica  top 5 nodes with storage_usage 
+ v_vdb_node0006 | DATA,TEMP     |                    23
+ v_vdb_node0004 | DATA,TEMP     |                    23
+ v_vdb_node0001 | CATALOG       |                    20
+ v_vdb_node0003 | CATALOG       |                    20
+ v_vdb_node0002 | CATALOG       |                    19
+
+############################################
+Vertica clusterCheck
+############################################
+ v_vdb_node0003  UP          ipv4                
+ v_vdb_node0001  UP          ipv4                
+ v_vdb_node0002  UP          ipv4                
+ v_vdb_node0004  UP          ipv4                
+ v_vdb_node0005  UP          ipv4                
+ v_vdb_node0006  UP          ipv4                
+ v_vdb_node0007  UP          ipv4                
+
+############################################
+############################################
+ 10        | 2023-02-01 00:05:01 | AGG_GI_NE_NAME_MONTH    | 2023-02-01 00:05:01 | 2023-02-01 00:00:00 |              1
+ 13        | 2022-06-14 18:12:21 | AGG_TRAFFIC_HOUR        |                     |                     |              1
+ 14        | 2023-02-01 00:05:00 | AGG_RTP_MONTH           | 2023-02-01 00:05:00 | 2023-02-01 00:00:00 |              1
+ 2         | 2023-02-01 00:05:01 | AGG_CONTROL_PLANE_MONTH | 2023-02-01 00:05:01 | 2023-02-01 00:00:00 |              1
+ 4         | 2023-02-01 00:05:00 | AGG_SIP_MONTH           | 2023-02-01 00:05:00 | 2023-02-01 00:00:00 |              1
+ 17        | 2023-02-13 00:05:00 | AGG_RTP_WEEK            | 2023-02-13 00:05:00 | 2023-02-13 00:00:00 |              1
+ 11        | 2023-02-13 08:05:00 | AGG_SIP_WEEK            | 2023-02-13 08:05:00 | 2023-02-13 00:00:00 |              1
+ 7         | 2023-02-13 08:05:01 | AGG_GI_NE_NAME_WEEK     | 2023-02-13 08:05:01 | 2023-02-13 00:00:00 |              1
+ 5         | 2023-02-13 08:05:01 | AGG_CONTROL_PLANE_WEEK  | 2023-02-13 08:05:01 | 2023-02-13 00:00:00 |              1
+ 21        | 2023-02-16 08:05:00 | AGG_DNS_HOUR            | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 20        | 2023-02-16 08:05:00 | AGG_HPA_HOUR            | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 16        | 2023-02-16 08:05:00 | AGG_RTP_DAY             | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 8         | 2023-02-16 08:05:00 | AGG_CONTROL_PLANE_HOUR  | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 6         | 2023-02-16 08:05:00 | AGG_SIP_HOUR            | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 15        | 2023-02-16 08:05:00 | AGG_RTP_HOUR            | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 18        | 2023-02-16 08:05:00 | AGG_HPA_DAY             | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 19        | 2023-02-16 08:05:00 | AGG_DNS_DAY             | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 9         | 2023-02-16 08:05:00 | AGG_GI_NE_NAME_HOUR     | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 12        | 2023-02-16 08:05:00 | AGG_SIP_DAY             | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 1         | 2023-02-16 08:05:01 | AGG_CONTROL_PLANE_DAY   | 2023-02-16 08:05:00 | 2023-02-16 08:00:00 |              1
+ 3         | 2023-02-16 08:05:01 | AGG_GI_NE_NAME_DAY      | 2023-02-16 08:05:01 | 2023-02-16 08:00:00 |              1
+
+############################################
+########## Vertica Bad file status (It will display latest file if any)  ##############
+10.228.101.39 | vertica0 | 0
+10.228.103.243 | vertica1 | 0
+10.228.101.202 | vertica2 | 0
+10.228.101.16 | vertica3 | 0
+10.228.103.251 | vertica4 | 0
+10.228.101.229 | vertica5 | 0
+10.228.101.59 | vertica6 | 0
+############################################
+                                                           
+                                                           
+########## BE VMs Disk Space >90% Threshold ##############
+10.228.101.18 | analyst0
+10.228.103.239 | analyst1
+10.228.101.36 | apigw0.novalocal
+10.228.103.209 | apigw1.novalocal
+10.228.101.21 | conductor0.novalocal
+10.228.103.211 | conductor1.novalocal
+10.228.101.17 | configurationrepository
+10.228.101.26 | kafka0
+10.228.103.224 | kafka1
+10.228.101.209 | kafka2
+10.228.101.58 | processing0.novalocal
+10.228.103.228 | processing1.novalocal
+10.228.101.238 | processing2.novalocal
+10.228.101.23 | qloader0.novalocal
+10.228.103.198 | qloader1.novalocal
+10.228.101.28 | qrouter0
+10.228.103.230 | qrouter1
+10.228.101.15 | qtracelb0.novalocal
+10.228.103.247 | qtracelb1.novalocal
+10.228.101.10 | qtraceprocessing0
+10.228.103.226 | qtraceprocessing1
+10.228.101.61 | schemamanager0
+10.228.101.52 | settingsandhealthdb0
+10.228.103.215 | settingsandhealthdb1
+10.228.101.206 | settingsandhealthdb2
+10.228.101.39 | vertica0
+10.228.103.243 | vertica1
+10.228.101.202 | vertica2
+10.228.101.16 | vertica3
+10.228.103.251 | vertica4
+10.228.101.229 | vertica5
+10.228.101.59 | vertica6
+                                                           
+                                                           
+########## CRM STATUS For all VMs  ##############
+############################################
+CRM STATUS             : OK
+                                                           
+                                                           
+################# MGU Critical Alarms Top 20 (for complete list check /tmp/MGUALARMS.txt) ###########################
+############################################
+MachineName,AlarmName,AlarmDescription,AlarmValue,MachineIP,TimeStampDisplay
+vertica6,IsAlive,Keep Alive,0,3,10.228.101.59,2022-12-11
+vertica5,IsAlive,Keep Alive,0,3,10.228.101.229,2022-12-11
+vertica4,IsAlive,Keep Alive,0,3,10.228.103.251,2022-12-11
+vertica3,IsAlive,Keep Alive,0,3,10.228.101.16,2022-12-11
+vertica2,IsAlive,Keep Alive,0,3,10.228.101.202,2022-12-11
+vertica1,IsAlive,Keep Alive,0,3,10.228.103.243,2022-12-11
+vertica0,IsAlive,Keep Alive,0,3,10.228.101.39,2022-12-11
+settingsandhealthdb2,IsAlive,Mongod is alive,0,3,10.228.101.206,2022-12-11
+settingsandhealthdb1,IsAlive,VM Keep Alive,0,3,10.228.103.215,2022-12-11
+settingsandhealthdb1,IsAlive,Mongod is alive,0,3,10.228.103.215,2022-12-11
+settingsandhealthdb0,IsAlive,Mongod is alive,0,3,10.228.101.52,2022-12-11
+qloader0,IsAlive,VM Keep Alive,0,3,10.228.101.23,2022-12-11
+processing2,IsAlive,VM Keep Alive,0,3,10.228.101.238,2022-12-11
+processing1,IsAlive,VM Keep Alive,0,3,10.228.103.228,2022-12-11
+processing0,IsAlive,VM Keep Alive,0,3,10.228.101.58,2022-12-11
+kafka2,IsAlive,Keep Alive,0,3,10.228.101.209,2022-12-11
+kafka1,IsAlive,Keep Alive,0,3,10.228.103.224,2022-12-11
+kafka0,IsAlive,Keep Alive,0,3,10.228.101.26,2022-12-11
+configurationrepository,IsAlive,Keep Alive,0,3,10.228.101.17,2022-12-11
+                                                           
+                                                           
+                                                           
+                                                           
+#############Total number of FE machines ############
+
+
+#ndc-use1
+10.228.103.16	clb-1131-0
+10.228.101.87	clba-1101-0
+10.228.103.28	clba-1102-0
+10.228.101.87	cprobe-1141-0
+10.228.101.87	cprobe-1142-0
+10.228.103.28	cprobe-1143-0
+10.228.103.16	cprobe-1144-0
+
+
+#ndc-use2
+10.224.94.119	clb-1231-0
+10.224.96.37	clba-1201-0
+10.224.94.119	clba-1202-0
+10.224.96.37	cprobe-1241-0
+10.224.94.119	cprobe-1242-0
+10.224.96.37	cprobe-1243-0
+10.224.96.37	cprobe-1244-0
+
+
+#ndc-usw2
+10.220.96.28	clb-1331-0
+10.220.96.28	clba-1301-0
+10.220.96.76	clba-1302-0
+10.220.96.74	cprobe-1341-0
+10.220.96.28	cprobe-1342-0
+10.220.96.28	cprobe-1343-0
+10.220.96.28	cprobe-1344-0
+
+
+#Rdc-use1
+10.230.22.106	clb-2031-0
+10.230.85.114	clb-2131-0
+10.230.22.107	clba-2001-0
+10.230.22.105	clba-2002-0
+10.230.85.118	clba-2101-0
+10.230.85.109	clba-2102-0
+10.230.22.105	cprobe-2041-0
+10.230.22.105	cprobe-2042-0
+10.230.22.106	cprobe-2043-0
+10.230.22.106	cprobe-2044-0
+10.230.85.118	cprobe-2141-0
+10.230.85.118	cprobe-2142-0
+10.230.85.114	cprobe-2143-0
+10.230.85.114	cprobe-2144-0
+
+
+#Rdc-use2
+10.226.22.56	clb-2231-0
+10.226.85.138	clb-2331-0
+10.226.22.56	clba-2201-0
+10.226.22.41	clba-2202-0
+10.226.85.147	clba-2301-0
+10.226.85.145	clba-2302-0
+10.226.22.56	cprobe-2241-0
+10.226.22.41	cprobe-2242-0
+10.226.22.41	cprobe-2243-0
+10.226.22.41	cprobe-2244-0
+10.226.85.145	cprobe-2341-0
+10.226.85.138	cprobe-2342-0
+10.226.85.138	cprobe-2343-0
+10.226.85.138	cprobe-2344-0
+
+
+#Rdc-usw2
+10.222.21.107	clb-2431-0
+10.222.85.178	clb-2531-0
+10.222.21.106	clba-2401-0
+10.222.21.102	clba-2402-0
+10.222.85.182	clba-2501-0
+10.222.85.171	clba-2502-0
+10.222.21.106	cprobe-2441-0
+10.222.21.102	cprobe-2442-0
+10.222.21.107	cprobe-2443-0
+10.222.21.107	cprobe-2444-0
+10.222.85.182	cprobe-2541-0
+10.222.85.178	cprobe-2542-0
+10.222.85.178	cprobe-2543-0
+10.222.85.178	cprobe-2544-0
